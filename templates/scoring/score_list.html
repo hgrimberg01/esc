@@ -1,0 +1,16 @@
+ {% block content %}
+<h2>Events</h2>
+<ul>
+	{% for event in object_list %}
+	<li>{{ event.event}}
+	<ul>
+		<li>{{ event.score }}</li>
+		<li>{{ event.normalized_score }}</li>
+
+		<li>{{ event.team }}</li>
+		<li>{{ event.date_time_stamp }}</li>
+	</ul>
+	</li>
+	{% endfor %}
+</ul>
+{% endblock %}
