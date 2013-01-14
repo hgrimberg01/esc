@@ -19,5 +19,6 @@ urlpatterns = patterns('',
      url(r'^api/getTeamScore/(?P<team_id>\d+)/$','scoring.views.get_team_scores'),   
     # Uncomment the next line to enable the admin:
      url(r'^admin/', include(admin.site.urls)),
+     url(r'^$',lambda request: HttpResponse(""))
  
 )
