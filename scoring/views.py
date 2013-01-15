@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 import simplejson as json
 from django.views.decorators.cache import cache_page
-
+import re
 
 @cache_page(60 * 1)
 def get_team_scores(request,team_id):
