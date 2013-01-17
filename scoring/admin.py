@@ -27,18 +27,18 @@ class ScoreForm(forms.ModelForm):
             if self.cleaned_data['score'] < 0:
                 raise forms.ValidationError("Score Cannot Be Negative")
             elif self.cleaned_data['score'] >selected_event.max_score:
-                raise forms.ValidationError("Score Cannot Be Greater Than Best Possible Score")
+                raise forms.ValidationError("Score Cannot Be Greater Than Best Possible Score of " +str(selected_event.max_score))
             elif self.cleaned_data['score'] < selected_event.min_score:
-                raise forms.ValidationError("Score Cannot Be Less Than Worst Possible Score")
+                raise forms.ValidationError("Score Cannot Be Less Than Worst Possible Score of "+str(selected_event.min_score))
             else:
                 return self.cleaned_data['score']
         elif selected_event.max_score < selected_event.min_score:
             if self.cleaned_data['score'] < 0:
                 raise forms.ValidationError("Score Cannot Be Negative")
             elif self.cleaned_data['score'] < selected_event.max_score:
-                raise forms.ValidationError("Score Cannot Be Less Than Best Possible Score")
+                raise forms.ValidationError("Score Cannot Be Less Than Best Possible Score of "+str(selected_event.max_score))
             elif self.cleaned_data['score'] > selected_event.min_score:
-                raise forms.ValidationError("Score Cannot Be Greater Than Worst Possible Score")
+                raise forms.ValidationError("Score Cannot Be Greater Than Worst Possible Score of "+str(selected_event.min_score))
             else:
                 return self.cleaned_data['score']
        
@@ -114,7 +114,7 @@ def AllScoresForEvent(request):
 AllScoresForEvent = staff_member_required(AllScoresForEvent)
 
 
-admin.site.register_view('somepath', AllScoresForEvent)
+admin.site.register_view('AllEventScores', AllScoresForEvent)
 
 def AllScoresForEventByDivision(request):
     all_events = Event.objects.all()
@@ -139,7 +139,7 @@ def AllScoresForEventByDivision(request):
     #print my_values
     
 AllScoresForEventByDivision = staff_member_required(AllScoresForEventByDivision)
-admin.site.register_view('somepath2', AllScoresForEventByDivision)    
+admin.site.register_view('AllScoresForEventsByDivision', AllScoresForEventByDivision)    
     
     
 def RetabulateEggDropScores(request):
