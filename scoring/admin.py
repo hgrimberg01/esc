@@ -23,14 +23,24 @@ class ScoreForm(forms.ModelForm):
     def clean_score(self):
         print(self.cleaned_data['event'])
         selected_event = Event.objects.get(name=self.cleaned_data['event'])
-        if self.cleaned_data['score'] < 0:
-            raise forms.ValidationError("Score Cannot Be Negative")
-        elif self.cleaned_data['score'] >selected_event.max_score:
-            raise forms.ValidationError("Score Cannot Be Greater Than Maximum Possible")
-        elif self.cleaned_data['score'] < selected_event.min_score:
-            raise forms.ValidationError("Score Cannot Be Less Than Minimum Possible")
-        else:
-            return self.cleaned_data['score']
+        if(selected_event.max_score > selected_event.min_score):
+            if self.cleaned_data['score'] < 0:
+                raise forms.ValidationError("Score Cannot Be Negative")
+            elif self.cleaned_data['score'] >selected_event.max_score:
+                raise forms.ValidationError("Score Cannot Be Greater Than Best Possible Score")
+            elif self.cleaned_data['score'] < selected_event.min_score:
+                raise forms.ValidationError("Score Cannot Be Less Than Worst Possible Score")
+            else:
+                return self.cleaned_data['score']
+        elif selected_event.max_score < selected_event.min_score:
+            if self.cleaned_data['score'] < 0:
+                raise forms.ValidationError("Score Cannot Be Negative")
+            elif self.cleaned_data['score'] < selected_event.max_score:
+                raise forms.ValidationError("Score Cannot Be Less Than Best Possible Score")
+            elif self.cleaned_data['score'] > selected_event.min_score:
+                raise forms.ValidationError("Score Cannot Be Greater Than Worst Possible Score")
+            else:
+                return self.cleaned_data['score']
        
         
 class ScoreAdmin(admin.ModelAdmin):
@@ -53,7 +63,7 @@ class EventAdmin(admin.ModelAdmin):
     def middle_school_scores(self,obj):
         return str(Score.objects.filter(event=obj).filter(team__division='MS').count())
     def elementary_school_scores(self,obj):
-        return str(Score.objects.filter(event=obj).filter(team__division='MS').count())
+        return str(Score.objects.filter(event=obj).filter(team__division='ES').count())
     def other_school_scores(self,obj):
         return str(Score.objects.filter(event=obj).filter(team__division='OTH').count())
     
