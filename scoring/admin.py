@@ -1,6 +1,8 @@
 from django.contrib import admin
 from scoring.models import Event, Score, EggDropScore, VolcanoScore  
+from registration.models import Team
 from django import forms
+from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib.admin.views.decorators import staff_member_required
@@ -12,10 +14,20 @@ admin.site.register(Event)
 admin.site.register(VolcanoScore)
         
 class ScoreForm(forms.ModelForm):
+    db_field = Score._meta.get_field_by_name('team')[0]
+    
+    team = forms.ModelChoiceField(
+        queryset=Team.objects.all(),
+        widget=ForeignKeyRawIdWidget(db_field.rel,admin.site),
+        required=True
+    )
     def __init__(self, *args, **kwargs):
         
         super(ScoreForm, self).__init__(*args, **kwargs)
         standard_events = Event.objects.filter(event_score_type='STD')
+        
+        standard_events = standard_events.filter(owners=self.current_groups)
+        
         event_widget = self.fields['event'].widget
         
         choices = []
@@ -24,7 +36,7 @@ class ScoreForm(forms.ModelForm):
         event_widget.choices = choices
         
     def clean_score(self):
-       
+        print self.current_groups
         print(self.cleaned_data['event'])
         selected_event = Event.objects.get(name=self.cleaned_data['event'])
         if(selected_event.max_score > selected_event.min_score):
@@ -50,7 +62,13 @@ class ScoreForm(forms.ModelForm):
        
         
 class ScoreAdmin(admin.ModelAdmin):
-    form = ScoreForm        
+    form = ScoreForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(ScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+        return form      
+    #raw_id_fields = ('team',)  
     pass
         
 

@@ -3,6 +3,7 @@ from django.db.models import Max
 from django.db.models import Min
 from registration.models import Team
 from django.conf import settings
+from django.contrib.auth.models import User,Group
 from django.core.exceptions import ValidationError
 # Create your models here.
 
@@ -12,6 +13,7 @@ class Event(models.Model):
     min_score = models.FloatField()
     score_types = (('STD', 'Standard'), ('EGD', 'Egg Drop'), ('VLN', 'Volcano'))
     event_score_type = models.CharField(choices=score_types, max_length=16)
+    owners = models.ManyToManyField(Group)
     def __unicode__(self):
         return self.name
     
