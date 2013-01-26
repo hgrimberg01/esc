@@ -1,16 +1,13 @@
 from registration.models import School,Teacher,Participant,Team
-#from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
-#from django.contrib.auth.models import User
 
+class TeamAdmin:
+    list_filter = ('name',)
+
+admin.site.register(Team,TeamAdmin)
 admin.site.register(School)
 admin.site.register(Teacher)
 admin.site.register(Participant)
-admin.site.register(Team)
-
-
-
-
 ## Define an inline admin descriptor for UserProfile model
 ## which acts a bit like a singleton
 #class UserProfileInline(admin.StackedInline):
