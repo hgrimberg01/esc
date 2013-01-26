@@ -164,7 +164,7 @@ GLOBAL_SETTINGS = {
     'MAX_NORMAL_SCORE':100.0,
     'MIN_NORMAL_SCORE': 0.0,
     'DECIMAL_PLACES_TO_ROUND':5,
-    'SCHOOL_TYPES':(('HS','High School'),('MS','Middle School'),('ES','Elementary School'))
+    'SCHOOL_TYPES':(('HS','High School'),('MS','Middle School'),('ES','Elementary School'),('OTH','Other School'),)
 }
 
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",

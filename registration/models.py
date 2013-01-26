@@ -7,23 +7,21 @@ from django.conf import settings
 
 class School(models.Model):
     name = models.CharField(max_length=128)
-    address_line_1 = models.CharField(max_length=128)
+    address_line_1 = models.CharField(max_length=128,blank=True,null=True)
     address_line_2 = models.CharField(max_length=128,blank=True,null=True)
-    city = models.CharField(max_length=128)
-    school_types = (('HS','High School'),('MS','Middle School'),('ES','Elementary School'))
-    state = USStateField()
-    zipcode = models.IntegerField()
-    school_type = models.CharField(choices=school_types,max_length=16)
+    city = models.CharField(max_length=128,blank=True,null=True)
+    state = USStateField(blank=True,null=True)
+    zipcode = models.IntegerField(blank=True,null=True)
+    school_type = models.CharField(choices=settings.GLOBAL_SETTINGS['SCHOOL_TYPES'],max_length=16)
     dateTimeStamp = models.DateTimeField(auto_now=True)
     def __unicode__(self):
         return self.name
 
 
 
-class TeacherProfile(models.Model):
+class Teacher(models.Model):
     telephone = PhoneNumberField()
     school = models.ForeignKey(School)
-    user = models.OneToOneField(User)
     dateTimeStamp = models.DateTimeField(auto_now=True)
     def __unicode__(self):
         
@@ -31,17 +29,17 @@ class TeacherProfile(models.Model):
 
 class Team(models.Model):
     name = models.CharField(max_length=64)
-    school_types = (('HS','High School'),('MS','Middle School'),('ES','Elementary School'),('OTH','Other'))
     division = models.CharField(choices=settings.GLOBAL_SETTINGS['SCHOOL_TYPES'],max_length=8)
+    school = models.ForeignKey(School)
     dateTimeStamp = models.DateTimeField(auto_now=True)
     def __unicode__(self):
         return self.name
     
 class Participant(models.Model):
     name = models.CharField(max_length=64)
-    school = models.ForeignKey(School)
-    teacher = models.ForeignKey(TeacherProfile)
-    teams = models.ManyToManyField(Team)
+    school = models.ForeignKey(School,blank=True,null=True)
+    teacher = models.ForeignKey(Teacher, blank=True,null=True)
+    teams = models.ManyToManyField(Team,blank=True,null=True)
     dateTimeStamp = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):

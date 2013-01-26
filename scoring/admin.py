@@ -168,10 +168,20 @@ admin.site.register_view('AllScoresForEventsByDivision', AllScoresForEventByDivi
     
 def RetabulateEggDropScores(request):
     egg_drop = EggDropScore.objects.all()
-    print(egg_drop[0].save())
-    # for egg_drop_score in egg_drop:
-        
+  
+    for egg_drop_score in egg_drop:
+        egg_drop_score.save()
     return  HttpResponseRedirect('/admin/')
 RetabulateEggDropScores = staff_member_required(RetabulateEggDropScores)
 admin.site.register_view('retabEggdrop', RetabulateEggDropScores)   
+
+def RetabulateVolcanoScores(request):
+    volcano_scores = VolcanoScore.objects.all()
+  
+    for volcano_score in volcano_scores:
+        volcano_score.save()
+    return  HttpResponseRedirect('/admin/')
+RetabulateEggDropScores = staff_member_required(RetabulateVolcanoScores)
+admin.site.register_view('retabVolcanoScores', RetabulateVolcanoScores)   
+    
     

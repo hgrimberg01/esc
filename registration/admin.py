@@ -1,10 +1,10 @@
-from registration.models import School,TeacherProfile,Participant,Team
+from registration.models import School,Teacher,Participant,Team
 #from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
 #from django.contrib.auth.models import User
 
 admin.site.register(School)
-admin.site.register(TeacherProfile)
+admin.site.register(Teacher)
 admin.site.register(Participant)
 admin.site.register(Team)
 
