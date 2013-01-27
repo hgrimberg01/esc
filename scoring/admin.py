@@ -118,7 +118,7 @@ def TopTenPerEvent(request):
     )
 TopTenPerEvent = staff_member_required(TopTenPerEvent)
 
-@cache_page(60*1)
+
 def AllScoresForEvent(request):
     all_events = Event.objects.all()
    
