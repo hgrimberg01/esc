@@ -118,6 +118,7 @@ def TopTenPerEvent(request):
     )
 TopTenPerEvent = staff_member_required(TopTenPerEvent)
 
+@cache_page(60*1)
 def AllScoresForEvent(request):
     all_events = Event.objects.all()
    
@@ -184,4 +185,27 @@ def RetabulateVolcanoScores(request):
 RetabulateEggDropScores = staff_member_required(RetabulateVolcanoScores)
 admin.site.register_view('retabVolcanoScores', RetabulateVolcanoScores)   
     
+    
+def AllScoresForSingleEventByDivision(request,event_id):
+    event = Event.objects.get(id=event_id)
+    all_divisions = settings.GLOBAL_SETTINGS['SCHOOL_TYPES']
+    div_event = []
+    for division in all_divisions:
+        div_temp = division[0]
+        event_division_score = Score.objects.filter(event=event).filter(team__division__exact=div_temp)
+        final_scores = event_division_score.order_by('-normalized_score')
+        div_event.append({'division':division[1], 'scores':final_scores})
+   
+    print div_event
+        
+   
+    return render_to_response(
+        "admin/scoring/event_score.html",
+        {'score_list' : div_event, 'event_title':event.name},
+        RequestContext(request, {}),
+    )
+    # print my_values
+    
+AllScoresForSingleEventByDivision = staff_member_required(AllScoresForSingleEventByDivision)
+admin.site.register_view('AllScoresForSingleEventByDivision', AllScoresForSingleEventByDivision)        
     

@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %} {% block title %}Score Report{%
+endblock %} {% block content %}
+
+<div id="content-main">
+	<h1>All Scores for {{ event_title }}</h1>
+
+
+	<ul>
+		{% for div_score in score_list %}
+		<li>
+			<h3>{{div_score.division}}</h3>
+			<ul>
+				{% for score in div_score.scores %}
+
+				<li>{{score.team}} {{score.score}}</li> 
+				{% endfor %}
+			</ul>
+		</li>
+		 {% endfor %}
+
+	</ul>
+
+
+	{% endblock %}
+</div>
+{% endblock %}
