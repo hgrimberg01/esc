@@ -23,5 +23,7 @@ urlpatterns = patterns('',
      url(r'^admin/', include(admin.site.urls)),
      url(r'^mobile/$',direct_to_template, {'template': '/home/hgrimberg/workspace/mobile/index.html'}),
      url(r'^$','scoring.views.index'),
+     url(r'call/initial/$','scoring.views.get_phone_intro'),
+     url(r'call/getScore/$','scoring.views.get_phone_score'),
  
 )

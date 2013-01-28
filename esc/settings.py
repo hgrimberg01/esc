@@ -119,10 +119,13 @@ INSTALLED_APPS = (
     'registration',
     'scoring',
     'adminplus',
+    'django_twilio',
   
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+TWILIO_ACCOUNT_SID = 'AP5b55a1b40fbe65b6ffb093328e82df86'
+TWILIO_AUTH_TOKEN = '523d856203389a7695ce0f69445ef616'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

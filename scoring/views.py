@@ -4,6 +4,11 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 import simplejson as json
+from twilio.twiml import Response
+from django_twilio.decorators import twilio_view
+from twilio.twiml import Response
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.decorators.cache import cache_page
 import re
 
@@ -47,5 +52,36 @@ def index(request):
             return HttpResponseRedirect("/mobile/")
         else:
             return HttpResponseRedirect("http://groups.ku.edu/~kuesc/expo")
+@csrf_exempt
+#@require_POST    
+@twilio_view   
+def get_phone_intro(request):
+    r = Response()
+    r.gather(action='/call/getScore/',method='GET').say('Welcome to the Kay You Engineering EXPO Scoring System. For score reports, please enter your team number and press pound.',voice='woman',language='en-gb')
+    
+    return r
+
+@csrf_exempt
+#@require_POST    
+@twilio_view   
+def get_phone_score(request):
+    r = Response()
+    team_id = request.GET['Digits']
+    try:
+        team = Team.objects.get(pk=team_id)
+        scores = Score.objects.filter(team=team)
+        r.say("Scores for team, "+team.name,voice='woman',language='en-gb')
+        r.pause(length=2)
+       
+        for score in scores:
+            r.say('For Event "'+score.event.name + '", You have ' + str(score.score) + ' points. ',voice='woman',language='en-gb')
+            r.pause(length=1)
+        
+        r.say("Thank you for calling. Goodbye!",voice='woman',language='en-gb')
+        r.hangup()
+        
+    except Team.DoesNotExist:    
+        r.say("We're sorry, The team number entered does not exist.")
+    return r
 
 
