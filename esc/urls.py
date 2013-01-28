@@ -25,5 +25,5 @@ urlpatterns = patterns('',
      url(r'^$','scoring.views.index'),
      url(r'call/initial/$','scoring.views.get_phone_intro'),
      url(r'call/getScore/$','scoring.views.get_phone_score'),
- 
+     url(r'sms/getScore/$','scoring.views.get_sms_score'),
 )

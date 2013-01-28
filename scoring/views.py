@@ -84,4 +84,35 @@ def get_phone_score(request):
         r.say("We're sorry, The team number entered does not exist.")
     return r
 
+@csrf_exempt
+#@require_POST    
+@twilio_view  
+def get_sms_score(request):
+    r = Response()
+    return_number = request.GET['From']
+    print return_number
+    try:
+        team_id = request.GET['Body']
+        team = Team.objects.get(pk=team_id)
+        scores = Score.objects.filter(team=team)
+        sms_string = "Team:"+team.name +"\n"
+        
+
+     
+        for score in scores:
+            sms_string = sms_string + "Event: " +score.event.name+ " Score:"+str(score.score)+"\n"
+      
+    except Team.DoesNotExist:    
+        sms_string = "We're sorry, The team number entered does not exist."
+       
+    except ValueError:
+        sms_string= "Invalid Team Number"  
+    
+    
+    r.sms(sms_string) 
+         
+    return r
+    
+    
+
 
