@@ -114,6 +114,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.messages',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'registration',
@@ -169,7 +170,7 @@ GLOBAL_SETTINGS = {
     'DECIMAL_PLACES_TO_ROUND':5,
     'SCHOOL_TYPES':(('HS','High School'),('MS','Middle School'),('ES','Elementary School'),('OTH','Other School'),)
 }
-
+MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.debug",
 "django.core.context_processors.i18n",
