@@ -10,7 +10,9 @@ from django.db.models import Max
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 import simplejson as json
+
 admin.site.register(Event)
+
 admin.site.register(VolcanoScore)
         
 class ScoreForm(forms.ModelForm):
@@ -67,6 +69,7 @@ class ScoreAdmin(admin.ModelAdmin):
         form = super(ScoreAdmin, self).get_form(request, obj, **kwargs)
         form.current_user = request.user
         form.current_groups = request.user.groups.all()
+       
         return form      
     #raw_id_fields = ('team',)  
     pass
@@ -207,5 +210,5 @@ def AllScoresForSingleEventByDivision(request,event_id):
     # print my_values
     
 AllScoresForSingleEventByDivision = staff_member_required(AllScoresForSingleEventByDivision)
-admin.site.register_view('AllScoresForSingleEventByDivision', AllScoresForSingleEventByDivision)        
+
     
