@@ -153,3 +153,11 @@ class VolcanoScore(Score):
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         
         super(VolcanoScore, self).save(force_insert, force_update)
+        
+        
+class PreRegistration(models.Model):
+    teams  = models.ForeignKey(Team)
+    event = models.ForeignKey(Event)
+    def __unicode__(self):
+        return self.teams.name + ' for ' + self.event.name
+    
