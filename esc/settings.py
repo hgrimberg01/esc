@@ -178,3 +178,12 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 "django.core.context_processors.static",
 "django.core.context_processors.tz",
 "django.contrib.messages.context_processors.messages")
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'box545.bluehost.com'
+EMAIL_HOST_PASSWORD = 'x9R7hhwrLsaccdWBEu5SkCw4'
+MAIL_HOST_USER = 'scoring-system+jayhawkmotorsports.com'
+EMAIL_PORT = '465'
+EMAIL_USE_TLS = 'true'
+EMAIL_SUBJECT_PREFIX = '[EXPO]'
