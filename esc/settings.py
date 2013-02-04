@@ -182,8 +182,10 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'box545.bluehost.com'
+DEFAULT_FROM_EMAIL='score-system@kuexpo.cloudapp.net'
 EMAIL_HOST_PASSWORD = 'x9R7hhwrLsaccdWBEu5SkCw4'
-MAIL_HOST_USER = 'scoring-system+jayhawkmotorsports.com'
-EMAIL_PORT = '465'
-EMAIL_USE_TLS = 'true'
+#EMAIL_HOST_PASSWORD = 'BigMoney$1969'
+EMAIL_HOST_USER ='scoring-system+jayhawkmotorsports.com'
+EMAIL_PORT = 26
+EMAIL_USE_TLS = False
 EMAIL_SUBJECT_PREFIX = '[EXPO]'
