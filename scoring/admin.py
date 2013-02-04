@@ -1,5 +1,5 @@
 from django.contrib import admin
-from scoring.models import Event, Score, EggDropScore, VolcanoScore  
+from scoring.models import Event, Score, EggDropScore, VolcanoScore, PreRegistration
 from registration.models import Team
 from django import forms
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
@@ -9,18 +9,20 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Max
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.models import User, Group
 import simplejson as json
-
+from django.core.mail import send_mass_mail,EmailMultiAlternatives
 admin.site.register(Event)
 
 admin.site.register(VolcanoScore)
+admin.site.register(PreRegistration)
         
 class ScoreForm(forms.ModelForm):
     db_field = Score._meta.get_field_by_name('team')[0]
     
     team = forms.ModelChoiceField(
         queryset=Team.objects.all(),
-        widget=ForeignKeyRawIdWidget(db_field.rel,admin.site),
+        widget=ForeignKeyRawIdWidget(db_field.rel, admin.site),
         required=True
     )
     def __init__(self, *args, **kwargs):
@@ -38,9 +40,28 @@ class ScoreForm(forms.ModelForm):
         event_widget.choices = choices
         
     def clean_score(self):
-        print self.current_groups
-        print(self.cleaned_data['event'])
         selected_event = Event.objects.get(name=self.cleaned_data['event'])
+        owners = selected_event.owners.all()
+        users = User.objects.filter(groups=owners)
+        emails = [user.email for user in users]
+        team = self.cleaned_data['team']
+        
+        
+        try:
+            event_prereg = PreRegistration.objects.get(event=selected_event, teams=Team.objects.get(name=self.cleaned_data['team']))
+        except:
+            subject = 'ERROR:Team %s (Number: %s) is not registered for event %s' % (team.name,str(team.id),selected_event.name,)
+            message = 'An error has occurred. \r\n  Team %s (Number: %s) is not registered for event %s.' % (team.name,str(team.id),selected_event.name,)
+            html = '<!DOCTYPE html><html><head><title>%s</title>' % (subject,)
+            html = html + '</head><body><h1>An Error Has Occured</h1><br/><p>An error has occurred. </br><strong>  Team %s (Number: %s)</strong> is not registered for event<strong> %s </strong>.</p></body></html>' % (team.name,str(team.id),selected_event.name,)
+            email = EmailMultiAlternatives(subject=subject, body=message, 
+            bcc=emails,
+            headers = {'Reply-To': 'hgrimberg01@gmail.com','X-Mailer':'ESC EXPO System v1.0'})
+            email.attach_alternative(html, "text/html")
+            email.send()
+            raise forms.ValidationError("Team is not registered for this event")
+            
+        
         if(selected_event.max_score > selected_event.min_score):
             if self.cleaned_data['score'] < 0:
                 raise forms.ValidationError("Score Cannot Be Negative")
@@ -71,7 +92,7 @@ class ScoreAdmin(admin.ModelAdmin):
         form.current_groups = request.user.groups.all()
        
         return form      
-    #raw_id_fields = ('team',)  
+    # raw_id_fields = ('team',)  
     pass
         
 
@@ -189,7 +210,7 @@ RetabulateEggDropScores = staff_member_required(RetabulateVolcanoScores)
 admin.site.register_view('retabVolcanoScores', RetabulateVolcanoScores)   
     
     
-def AllScoresForSingleEventByDivision(request,event_id):
+def AllScoresForSingleEventByDivision(request, event_id):
     event = Event.objects.get(id=event_id)
     all_divisions = settings.GLOBAL_SETTINGS['SCHOOL_TYPES']
     div_event = []
