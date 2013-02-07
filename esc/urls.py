@@ -7,6 +7,8 @@ from adminplus import AdminSitePlus
 from scoring.views import get_team_scores
 from django.shortcuts import render_to_response
 from django.views.generic.simple import direct_to_template
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.conf import settings
 admin.site = AdminSitePlus()
 admin.autodiscover()
 
@@ -26,4 +28,5 @@ urlpatterns = patterns('',
      url(r'call/initial/$','scoring.views.get_phone_intro'),
      url(r'call/getScore/$','scoring.views.get_phone_score'),
      url(r'sms/getScore/$','scoring.views.get_sms_score'),
-)
+)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += staticfiles_urlpatterns()
