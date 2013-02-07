@@ -6,6 +6,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from math import ceil
+from scoring.models import PreRegistration
 import time
 
 class TeamAdmin(admin.ModelAdmin):
@@ -22,7 +23,7 @@ class SchoolAdmin(admin.ModelAdmin):
 class ParticipantAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('teacher',)
-    search_fields = ('teacher', 'name',)
+    search_fields = ( 'name',)
 
     
     
@@ -107,7 +108,10 @@ def GetParticipantLabels(request):
             
             for team in participant['teams']:
                 team_string = team_string + '\n' + team['team_name'] + ' : ' + str(team['team_id'])
-            tx = p.beginText(x + 375, y - 50)
+                for event_team in PreRegistration.objects.filter(teams__name=team['team_name']):
+                    team_string = team_string + '\n' + event_team.event.name
+        
+            tx = p.beginText(x + 325, y - 50)
             tx.setFont('Helvetica', 12, 12)
             tx.textLines(team_string)
             
