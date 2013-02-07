@@ -11,7 +11,7 @@ class Event(models.Model):
     name = models.CharField(max_length=64)
     max_score = models.FloatField()
     min_score = models.FloatField()
-    score_types = (('STD', 'Standard'), ('EGD', 'Egg Drop'), ('VLN', 'Volcano'))
+    score_types = settings.GLOBAL_SETTINGS['SCORE_TYPES']
     event_score_type = models.CharField(choices=score_types, max_length=16)
     owners = models.ManyToManyField(Group)
     def __unicode__(self):
