@@ -44,16 +44,20 @@ class ScoreForm(forms.ModelForm):
         owners = selected_event.owners.all()
         users = User.objects.filter(groups=owners)
         emails = [user.email for user in users]
-        team = self.cleaned_data['team']
+        try:
+            
+            team = self.cleaned_data['team']
+        except:
+             raise forms.ValidationError("Team ID is incorrect or does not exist")
         
         
         try:
             event_prereg = PreRegistration.objects.get(event=selected_event, teams=Team.objects.get(name=self.cleaned_data['team']))
         except:
             subject = 'ERROR:Team %s (Number: %s) is not registered for event %s' % (team.name,str(team.id),selected_event.name,)
-            message = 'An error has occurred. \r\n  Team %s (Number: %s) is not registered for event %s.' % (team.name,str(team.id),selected_event.name,)
+            message = 'An error has occurred. \r\n  Team %s (Number: %s) is not registered for event %s. \n User:%s' % (team.name,str(team.id),selected_event.name,self.current_user.username,)
             html = '<!DOCTYPE html><html><head><title>%s</title>' % (subject,)
-            html = html + '</head><body><h1>An Error Has Occured</h1><br/><p>An error has occurred. </br><strong>  Team %s (Number: %s)</strong> is not registered for event<strong> %s </strong>.</p></body></html>' % (team.name,str(team.id),selected_event.name,)
+            html = html + '</head><body><h1>An Error Has Occurred</h1><br/><p>An error has occurred. </br><strong>  Team %s (Number: %s)</strong> is not registered for event<strong> %s </strong>.</p> </br><p>User:<strong> %s </strong> </p></body></html>' % (team.name,str(team.id),selected_event.name,self.current_user.username)
             email = EmailMultiAlternatives(subject=subject, body=message, 
             bcc=emails,
             headers = {'Reply-To': 'hgrimberg01@gmail.com','X-Mailer':'ESC EXPO System v1.0'})
