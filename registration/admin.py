@@ -7,6 +7,13 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from math import ceil
 from scoring.models import PreRegistration
+from django.conf import settings
+from django.views.decorators.cache import cache_page
+from reportlab.lib.units import mm
+from reportlab.graphics.shapes import Drawing 
+from reportlab.graphics.barcode.qr import QrCodeWidget 
+from reportlab.graphics import renderPDF    
+from reportlab.graphics.barcode import code128
 import time
 
 class TeamAdmin(admin.ModelAdmin):
@@ -47,7 +54,7 @@ admin.site.register(Participant, ParticipantAdmin)
 # admin.site.register(User, UserAdmin)
 # ##
 
-
+#@cache_page(60 * 3)
 def GetParticipantLabels(request):
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(mimetype='application/pdf')
@@ -74,7 +81,7 @@ def GetParticipantLabels(request):
             obj = {'team_id':team.id, 'team_name':team.name}
             team_names.append(obj)
         
-        label = {'name':student.name, 'teams':team_names}
+        label = {'name':student.name,'sid':student.id, 'teams':team_names}
         data.append(label)
 
     
@@ -97,7 +104,22 @@ def GetParticipantLabels(request):
             p.rect(x, y, LABELW, -LABELH)
             p.rect(x, y, LABELW / 2, -LABELH)
             tx = p.beginText(x + 25, y - 50)
+            p.drawImage(settings.STATIC_ROOT+'ku/jayhawk.png', x+200, y-210, preserveAspectRatio=True)
             tx.setFont('Helvetica', 36, 36)
+            
+            barcode = code128.Code128(str(participant['sid']),barHeight=15*mm, humanReadable=True)
+            barcode.drawOn(p, x+10,y-150)
+            #barcode = QrCodeWidget('12213123')
+            #b = barcode.getBounds()
+
+            #w=b[2]-b[0] 
+            #h=b[3]-b[1] 
+
+            #d = Drawing(45,45,transform=[45./w,0,0,45./h,0,0]) 
+            #d.add(barcode)
+
+            #renderPDF.draw(d, p, x+200, y-120)
+            
             name_parts = participant['name'].split()
             name_string = ''
             for name_part in name_parts:
@@ -111,6 +133,7 @@ def GetParticipantLabels(request):
                 for event_team in PreRegistration.objects.filter(teams__name=team['team_name']):
                     team_string = team_string + '\n' + event_team.event.name
         
+            
             tx = p.beginText(x + 325, y - 50)
             tx.setFont('Helvetica', 12, 12)
             tx.textLines(team_string)
