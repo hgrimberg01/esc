@@ -152,9 +152,59 @@ class VolcanoScore(Score):
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         
+        
         super(VolcanoScore, self).save(force_insert, force_update)
         
+class DrillingMudScore(Score):
+    ingredients_documented = models.BooleanField()
+    number_of_ingredients = models.IntegerField()
+    price_documented = models.BooleanField()
+    price_per_liter = models.FloatField()
+    slide_time = models.FloatField()
+    price_time = models.FloatField()
+    cuttings_left = models.IntegerField()
+    group_poster =models.BooleanField()
+    def save(self, force_insert=False, force_update=False): 
         
+        base_score = 25.0
+        ingredient_score = 0.0
+        ingredient_price_score = 0.0
+        ingredient_doc_score = 0.0
+        poster_score = 0.0
+        #Set flag to indicate ingredients are NOT documented
+        if not self.ingredients_documented:
+            ingredient_doc_score = 1.0
+        #Set flag to indicate price is NOT documented    
+        if not self.price_documented:
+            ingredient_price_score = 1.0
+        #If group HAS a poster, subtract 5 points.    
+        if self.group_poster:
+            poster_score = -5.0
+        if self.number_of_ingredients < 3:
+            ingredient_score = 4.0
+        elif self.number_of_ingredients > 3:
+            ingredient_score = (self.number_of_ingredients-3)*0.5      
+        #Price * Time    
+        time_price = self.price_per_liter * self.slide_time
+        self.price_time = time_price
+        print('ing score: '+str(ingredient_score))    
+        rank = DrillingMudScore.objects.filter(team__division=self.team.division).count() - DrillingMudScore.objects.filter(team__division=self.team.division,price_time__gt=time_price).count()
+        print('Total: '+str(DrillingMudScore.objects.filter(team__division=self.team.division).count()))
+        print('Less Than: '+str(DrillingMudScore.objects.filter(team__division=self.team.division,price_time__lt=time_price).count()))
+        rank_score = rank - 1.0
+        print('Rank: ' + str(rank))
+        print('Rank Score: ' + str(rank_score))
+        final_score = 25 + ingredient_doc_score + ingredient_score + ingredient_price_score + rank_score + self.cuttings_left + poster_score
+        self.score = final_score
+        
+        max_possible = self.event.max_score
+        min_possible = self.event.min_score
+        
+        dif_high_low = min_possible - max_possible
+        dif_score_low = min_possible - self.score
+        self.normalized_score = round((dif_score_low / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        super(DrillingMudScore, self).save(force_insert, force_update)
+            
 class PreRegistration(models.Model):
     teams  = models.ForeignKey(Team)
     event = models.ForeignKey(Event)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from scoring.models import Event, Score, EggDropScore, VolcanoScore, PreRegistration
+from scoring.models import Event, Score, EggDropScore, VolcanoScore, PreRegistration,DrillingMudScore
 from registration.models import Team
 from django import forms
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
@@ -12,11 +12,18 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User, Group
 import simplejson as json
 from django.core.mail import send_mass_mail,EmailMultiAlternatives
+from django.views.decorators.cache import cache_page
 admin.site.register(Event)
 
 admin.site.register(VolcanoScore)
-admin.site.register(PreRegistration)
-        
+
+
+class PreRegistrationAdmin(admin.ModelAdmin):
+    list_display = ('teams','event',)
+    list_filter = ('event',)
+    search_fields = ( 'teams__name','event__name',)
+    
+admin.site.register(PreRegistration,PreRegistrationAdmin)        
 class ScoreForm(forms.ModelForm):
     db_field = Score._meta.get_field_by_name('team')[0]
     
@@ -38,8 +45,8 @@ class ScoreForm(forms.ModelForm):
         for element in standard_events:
             choices.append((element.id, element.name))
         event_widget.choices = choices
-        
-    def clean_score(self):
+    
+    def clean_team(self):  
         selected_event = Event.objects.get(name=self.cleaned_data['event'])
         owners = selected_event.owners.all()
         users = User.objects.filter(groups=owners)
@@ -49,7 +56,7 @@ class ScoreForm(forms.ModelForm):
             team = self.cleaned_data['team']
         except:
              raise forms.ValidationError("Team ID is incorrect or does not exist")
-        
+         
         
         try:
             event_prereg = PreRegistration.objects.get(event=selected_event, teams=Team.objects.get(name=self.cleaned_data['team']))
@@ -63,8 +70,10 @@ class ScoreForm(forms.ModelForm):
             headers = {'Reply-To': 'hgrimberg01@gmail.com','X-Mailer':'ESC EXPO System v1.0'})
             email.attach_alternative(html, "text/html")
             email.send()
-            raise forms.ValidationError("Team is not registered for this event")
-            
+            raise forms.ValidationError("Team is not registered for this event")  
+    def clean_score(self):
+        selected_event = Event.objects.get(name=self.cleaned_data['event'])
+
         
         if(selected_event.max_score > selected_event.min_score):
             if self.cleaned_data['score'] < 0:
@@ -102,6 +111,7 @@ class ScoreAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'score_report', 'total_scores', 'high_school_scores', 'middle_school_scores', 'elementary_school_scores', 'other_school_scores')
+    search_fields = ( 'name',)
 
     # def show_link(self, obj):
     #    return '<a href="%s">Click here</a>' % obj.get_absolute_url()
@@ -213,7 +223,7 @@ def RetabulateVolcanoScores(request):
 RetabulateEggDropScores = staff_member_required(RetabulateVolcanoScores)
 admin.site.register_view('retabVolcanoScores', RetabulateVolcanoScores)   
     
-    
+@cache_page(60 * 2)    
 def AllScoresForSingleEventByDivision(request, event_id):
     event = Event.objects.get(id=event_id)
     all_divisions = settings.GLOBAL_SETTINGS['SCHOOL_TYPES']
@@ -236,4 +246,36 @@ def AllScoresForSingleEventByDivision(request, event_id):
     
 AllScoresForSingleEventByDivision = staff_member_required(AllScoresForSingleEventByDivision)
 
-    
+admin.site.register(DrillingMudScore    )
+
+def RetabulateDrillingMudScores(request):
+    drilling_mud_scores = DrillingMudScore.objects.all()
+  
+    for drilling_mud_scores in drilling_mud_scores:
+        drilling_mud_scores.save()
+    return  HttpResponseRedirect('/admin/')
+RetabulateDrillingMudScores = staff_member_required(RetabulateDrillingMudScores)
+admin.site.register_view('retabDrillingMudScores', RetabulateDrillingMudScores)
+
+
+
+#GravityCarScore
+#WaterRocketScore
+#
+#GravityCarScoreAdmin
+#WaterRocketScoreAdmin
+#
+#GravityCarScoreForm
+#WaterRocketScoreForm
+#
+#DrillingMudScoreAdmin
+#DrillingMudScoreForm
+#
+#EggDropScoreForm
+#EggDropScoreAdmin
+#
+#VolcanoScoreAdmin
+#VolcanoScoreForm
+
+
+   
