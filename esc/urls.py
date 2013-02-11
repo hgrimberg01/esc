@@ -29,5 +29,5 @@ urlpatterns = patterns('',
      url(r'^call/initial/$','scoring.views.get_phone_intro'),
      url(r'^call/getScore/$','scoring.views.get_phone_score'),
      url(r'^sms/getScore/$','scoring.views.get_sms_score'),
-) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-urlpatterns += staticfiles_urlpatterns()
+) #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#urlpatterns += staticfiles_urlpatterns()
