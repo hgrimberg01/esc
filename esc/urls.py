@@ -21,7 +21,8 @@ urlpatterns = patterns('',
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/scoring/getEventScore/(?P<event_id>\d+)/$','scoring.admin.AllScoresForSingleEventByDivision'),
-     url(r'^api/getTeamScore/(?P<team_id>\d+)/$','scoring.views.get_team_scores'),   
+     url(r'^api/getTeamScore/(?P<team_id>\d+)/$','scoring.views.get_team_scores'),
+     url(r'^api/getTeams/$','registration.views.get_teams'),   
     # Uncomment the next line to enable the admin:
      url(r'^admin/', include(admin.site.urls)),
      url(r'^mobile/$',direct_to_template, {'template': '/home/hgrimberg/workspace/mobile/index.html'}),
