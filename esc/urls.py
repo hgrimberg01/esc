@@ -14,21 +14,15 @@ admin.site = AdminSitePlus()
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'esc.views.home', name='home'),
-    # url(r'^esc/', include('esc.foo.urls')),
 
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/scoring/getEventScore/(?P<event_id>\d+)/$','scoring.admin.AllScoresForSingleEventByDivision'),
+     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+     url(r'^admin/scoring/getEventScore/(?P<event_id>\d+)/$','scoring.admin.AllScoresForSingleEventByDivision'),
      url(r'^api/getTeamScore/(?P<team_id>\d+)/$','scoring.views.get_team_scores'),
      url(r'^api/getTeams/$','registration.views.get_teams'),   
-    # Uncomment the next line to enable the admin:
+  
      url(r'^admin/', include(admin.site.urls)),
-     url(r'^mobile/$',direct_to_template, {'template': '/home/hgrimberg/workspace/mobile/index.html'}),
      url(r'^$','scoring.views.index'),
      url(r'^call/initial/$','scoring.views.get_phone_intro'),
      url(r'^call/getScore/$','scoring.views.get_phone_score'),
      url(r'^sms/getScore/$','scoring.views.get_sms_score'),
-) #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-#urlpatterns += staticfiles_urlpatterns()
+)
