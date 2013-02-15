@@ -3,7 +3,7 @@ from django.db.models import Max
 from django.db.models import Min
 from registration.models import Team
 from django.conf import settings
-from django.contrib.auth.models import User,Group
+from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
 # Create your models here.
 
@@ -21,21 +21,22 @@ class Event(models.Model):
 
 
 class Score(models.Model):
-    event = models.ForeignKey(Event)
-    team = models.ForeignKey(Team)
-    score = models.FloatField()
+    event = models.ForeignKey(Event,help_text='Select an Event')
+    team = models.ForeignKey(Team,help_text='Enter the Team ID')
+    score = models.FloatField(help_text='Enter the teams score')
+    disqualified = models.BooleanField(help_text='Check if the score is disqualified')
     normalized_score = models.FloatField(blank=True, null=True)
     dateTimeStamp = models.DateTimeField(auto_now=True)
     def save(self, force_insert=False, force_update=False):
         max_possible = self.event.max_score
         min_possible = self.event.min_score
-    
+        
         if max_possible > min_possible:
             if self.score > max_possible or self.score < min_possible:
                 raise ValidationError("Impossible Score")
-                print('invalid')
+           
             else:
-                print('valid')
+                
                 dif_high_low = max_possible - min_possible
                 dif_score_high = max_possible - self.score
                 self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
@@ -62,7 +63,7 @@ class EggDropScore(Score):
         min_possible = self.event.min_score
        
         
-        max_flight_time_query = EggDropScore.objects.filter(team__division=self.team.division).aggregate(Max('flight_time'))
+        max_flight_time_query = EggDropScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('flight_time'))
         if max_flight_time_query['flight_time__max'] == None:
             max_flight_time = self.flight_time
         elif self.flight_time > max_flight_time_query['flight_time__max']:
@@ -70,8 +71,8 @@ class EggDropScore(Score):
         else:
             max_flight_time = max_flight_time_query['flight_time__max']
       
-        max_weight_query = EggDropScore.objects.filter(team__division=self.team.division).aggregate(Max('weight'))
-        min_weight_query = EggDropScore.objects.filter(team__division=self.team.division).aggregate(Min('weight'))
+        max_weight_query = EggDropScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight'))
+        min_weight_query = EggDropScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('weight'))
         
         if max_weight_query['weight__max'] == None:
             max_weight = self.weight
@@ -91,9 +92,7 @@ class EggDropScore(Score):
             
         weight_score = (max_weight - self.weight) / (max_weight - min_weight)
         self.score = self.egg_safety * (flight_time_score + weight_score + (self.creative_score / 10.0))
-        print("Weight Score:"+str(weight_score))
-        print("Flight Score:"+str(flight_time_score))
-        print(self.score)
+       
         dif_high_low = max_possible - min_possible
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
@@ -105,10 +104,10 @@ class VolcanoScore(Score):
     distance = models.FloatField()
     def save(self, force_insert=False, force_update=False):
         
-        max_time_query = VolcanoScore.objects.filter(team__division=self.team.division).aggregate(Max('time'))
-        min_time_query = VolcanoScore.objects.filter(team__division=self.team.division).aggregate(Min('time'))
-        max_distance_query = VolcanoScore.objects.filter(team__division=self.team.division).aggregate(Max('distance'))
-        min_distance_query = VolcanoScore.objects.filter(team__division=self.team.division).aggregate(Min('distance'))
+        max_time_query = VolcanoScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('time'))
+        min_time_query = VolcanoScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('time'))
+        max_distance_query = VolcanoScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('distance'))
+        min_distance_query = VolcanoScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('distance'))
         
         if max_time_query['time__max'] == None:
             max_time = self.time
@@ -139,13 +138,13 @@ class VolcanoScore(Score):
             min_distance = min_distance_query['distance__min']    
             
             
-        A = 50.0*(self.time-min_time) / (max_time-min_time)
-        B = 50.0*(self.distance-min_distance)/(max_distance-min_distance)
+        A = 50.0 * (self.time - min_time) / (max_time - min_time)
+        B = 50.0 * (self.distance - min_distance) / (max_distance - min_distance)
    
         max_possible = self.event.max_score
         min_possible = self.event.min_score
         
-        self.score = A+B
+        self.score = A + B
         print(self.score)
         
         dif_high_low = max_possible - min_possible
@@ -163,7 +162,7 @@ class DrillingMudScore(Score):
     slide_time = models.FloatField()
     price_time = models.FloatField()
     cuttings_left = models.IntegerField()
-    group_poster =models.BooleanField()
+    group_poster = models.BooleanField()
     def save(self, force_insert=False, force_update=False): 
         
         base_score = 25.0
@@ -171,29 +170,27 @@ class DrillingMudScore(Score):
         ingredient_price_score = 0.0
         ingredient_doc_score = 0.0
         poster_score = 0.0
-        #Set flag to indicate ingredients are NOT documented
+        # Set flag to indicate ingredients are NOT documented
         if not self.ingredients_documented:
             ingredient_doc_score = 1.0
-        #Set flag to indicate price is NOT documented    
+        # Set flag to indicate price is NOT documented    
         if not self.price_documented:
             ingredient_price_score = 1.0
-        #If group HAS a poster, subtract 5 points.    
+        # If group HAS a poster, subtract 5 points.    
         if self.group_poster:
             poster_score = -5.0
         if self.number_of_ingredients < 3:
             ingredient_score = 4.0
         elif self.number_of_ingredients > 3:
-            ingredient_score = (self.number_of_ingredients-3)*0.5      
-        #Price * Time    
+            ingredient_score = (self.number_of_ingredients - 3) * 0.5      
+        # Price * Time    
         time_price = self.price_per_liter * self.slide_time
         self.price_time = time_price
-        print('ing score: '+str(ingredient_score))    
-        rank = DrillingMudScore.objects.filter(team__division=self.team.division).count() - DrillingMudScore.objects.filter(team__division=self.team.division,price_time__gt=time_price).count()
-        print('Total: '+str(DrillingMudScore.objects.filter(team__division=self.team.division).count()))
-        print('Less Than: '+str(DrillingMudScore.objects.filter(team__division=self.team.division,price_time__lt=time_price).count()))
+        
+        rank = DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, price_time__gt=time_price).count()
+       
         rank_score = rank - 1.0
-        print('Rank: ' + str(rank))
-        print('Rank Score: ' + str(rank_score))
+
         final_score = 25 + ingredient_doc_score + ingredient_score + ingredient_price_score + rank_score + self.cuttings_left + poster_score
         self.score = final_score
         
@@ -206,8 +203,28 @@ class DrillingMudScore(Score):
         super(DrillingMudScore, self).save(force_insert, force_update)
             
 class PreRegistration(models.Model):
-    teams  = models.ForeignKey(Team)
+    teams = models.ForeignKey(Team)
     event = models.ForeignKey(Event)
     def __unicode__(self):
         return self.teams.name + ' for ' + self.event.name
     
+class GravityCarScore(Score):
+    time = models.FloatField(help_text='Time for car')
+    weight = models.FloatField(help_text='Weight for car')
+    def save(self, force_insert=False, force_update=False):
+       max_time =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['time'])
+       min_time =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['time'])
+       max_weight =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['weight'])
+       min_weight =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['weight'])
+       a = 50.0*(max_time-self.time)/(max_time-min_time)
+       b = 50.0*(max_weight-self.weight)/(max_weight-min_weight)
+       self.score = a+b
+       
+       max_possible = self.event.max_score
+       min_possible = self.event.min_score
+       
+       dif_high_low = max_possible - min_possible
+       dif_score_high = max_possible - self.score
+       
+       self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+       super(GravityCarScore, self).save(force_insert, force_update)
