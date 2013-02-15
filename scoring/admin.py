@@ -54,12 +54,9 @@ class ScoreForm(forms.ModelForm):
         users = User.objects.filter(groups=owners)
         emails = [user.email for user in users]
         try:
-            
             team = self.cleaned_data['team']
         except:
              raise forms.ValidationError("Team ID is incorrect or does not exist")
-         
-        
         try:
             event_prereg = PreRegistration.objects.get(event=selected_event, teams=Team.objects.get(name=self.cleaned_data['team']))
         except:
@@ -72,7 +69,9 @@ class ScoreForm(forms.ModelForm):
             headers={'Reply-To': 'hgrimberg01@gmail.com', 'X-Mailer':'ESC EXPO System v1.0'})
             email.attach_alternative(html, "text/html")
             email.send()
-            raise forms.ValidationError("Team is not registered for this event")  
+            raise forms.ValidationError("Team is not registered for this event")
+        return self.cleaned_data['team']  
+        
     def clean_score(self):
         selected_event = Event.objects.get(name=self.cleaned_data['event'])
 
@@ -101,16 +100,18 @@ class ScoreForm(forms.ModelForm):
         
 class ScoreAdmin(admin.ModelAdmin):
     form = ScoreForm
-    list_display = ('score','event','team',)
-    
+    list_display = ('event', 'team', 'score')
+    list_filter = ('event','team__division')
+    search_fields = ('team',)
+    raw_id_fields = ('team',)
    
     def get_form(self, request, obj=None, **kwargs):
         form = super(ScoreAdmin, self).get_form(request, obj, **kwargs)
         form.current_user = request.user
         form.current_groups = request.user.groups.all()
-       
+      
         return form      
-    # raw_id_fields = ('team',)  
+        
     pass
         
 
@@ -308,7 +309,7 @@ class EggDropScoreForm(ScoreForm):
 
 
 class EggDropScoreAdmin(ScoreAdmin):
-    form  = EggDropScoreForm    
+    form = EggDropScoreForm    
     def get_form(self, request, obj=None, **kwargs):
         form = super(EggDropScoreAdmin, self).get_form(request, obj, **kwargs)
         form.current_user = request.user
@@ -319,25 +320,25 @@ class EggDropScoreAdmin(ScoreAdmin):
 
 
 
-admin.site.register(DrillingMudScore,DrillingMudAdmin)
-admin.site.register(EggDropScore,EggDropScoreAdmin)
-# GravityCarScore
-# WaterRocketScore
+admin.site.register(DrillingMudScore, DrillingMudAdmin)
+admin.site.register(EggDropScore, EggDropScoreAdmin)
+# # GravityCarScore
+# # WaterRocketScore
+# #
+# # GravityCarScoreAdmin
+# # WaterRocketScoreAdmin
+# #
+# # GravityCarScoreForm
+# # WaterRocketScoreForm
+# #
+# # DrillingMudScoreAdmin
+# # DrillingMudScoreForm
+# #
+# # EggDropScoreForm
+# # EggDropScoreAdmin
+# #
+# # VolcanoScoreAdmin
+# # VolcanoScoreForm
 #
-# GravityCarScoreAdmin
-# WaterRocketScoreAdmin
 #
-# GravityCarScoreForm
-# WaterRocketScoreForm
-#
-# DrillingMudScoreAdmin
-# DrillingMudScoreForm
-#
-# EggDropScoreForm
-# EggDropScoreAdmin
-#
-# VolcanoScoreAdmin
-# VolcanoScoreForm
-
-
-   
+#   
