@@ -101,7 +101,7 @@ class ScoreForm(forms.ModelForm):
         
 class ScoreAdmin(admin.ModelAdmin):
     form = ScoreForm
-    list_display('score',)
+    list_display = ('score','event','team',)
     
    
     def get_form(self, request, obj=None, **kwargs):
