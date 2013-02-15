@@ -1,5 +1,5 @@
 from django.contrib import admin
-from scoring.models import Event, Score, EggDropScore, VolcanoScore, PreRegistration,DrillingMudScore
+from scoring.models import Event, Score, EggDropScore, VolcanoScore, PreRegistration, DrillingMudScore
 from registration.models import Team
 from django import forms
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
@@ -11,7 +11,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User, Group
 import simplejson as json
-from django.core.mail import send_mass_mail,EmailMultiAlternatives
+from django.core.mail import send_mass_mail, EmailMultiAlternatives
 from django.views.decorators.cache import cache_page
 admin.site.register(Event)
 
@@ -19,11 +19,13 @@ admin.site.register(VolcanoScore)
 
 
 class PreRegistrationAdmin(admin.ModelAdmin):
-    list_display = ('teams','event',)
+    list_display = ('teams', 'event',)
     list_filter = ('event',)
-    search_fields = ( 'teams__name','event__name',)
+    search_fields = ('teams__name', 'event__name',)
     
-admin.site.register(PreRegistration,PreRegistrationAdmin)        
+admin.site.register(PreRegistration, PreRegistrationAdmin)   
+
+     
 class ScoreForm(forms.ModelForm):
     db_field = Score._meta.get_field_by_name('team')[0]
     
@@ -61,13 +63,13 @@ class ScoreForm(forms.ModelForm):
         try:
             event_prereg = PreRegistration.objects.get(event=selected_event, teams=Team.objects.get(name=self.cleaned_data['team']))
         except:
-            subject = 'ERROR:Team %s (Number: %s) is not registered for event %s' % (team.name,str(team.id),selected_event.name,)
-            message = 'An error has occurred. \r\n  Team %s (Number: %s) is not registered for event %s. \n User:%s' % (team.name,str(team.id),selected_event.name,self.current_user.username,)
+            subject = 'ERROR:Team %s (Number: %s) is not registered for event %s' % (team.name, str(team.id), selected_event.name,)
+            message = 'An error has occurred. \r\n  Team %s (Number: %s) is not registered for event %s. \n User:%s' % (team.name, str(team.id), selected_event.name, self.current_user.username,)
             html = '<!DOCTYPE html><html><head><title>%s</title>' % (subject,)
-            html = html + '</head><body><h1>An Error Has Occurred</h1><br/><p>An error has occurred. </br><strong>  Team %s (Number: %s)</strong> is not registered for event<strong> %s </strong>.</p> </br><p>User:<strong> %s </strong> </p></body></html>' % (team.name,str(team.id),selected_event.name,self.current_user.username)
-            email = EmailMultiAlternatives(subject=subject, body=message, 
+            html = html + '</head><body><h1>An Error Has Occurred</h1><br/><p>An error has occurred. </br><strong>  Team %s (Number: %s)</strong> is not registered for event<strong> %s </strong>.</p> </br><p>User:<strong> %s </strong> </p></body></html>' % (team.name, str(team.id), selected_event.name, self.current_user.username)
+            email = EmailMultiAlternatives(subject=subject, body=message,
             bcc=emails,
-            headers = {'Reply-To': 'hgrimberg01@gmail.com','X-Mailer':'ESC EXPO System v1.0'})
+            headers={'Reply-To': 'hgrimberg01@gmail.com', 'X-Mailer':'ESC EXPO System v1.0'})
             email.attach_alternative(html, "text/html")
             email.send()
             raise forms.ValidationError("Team is not registered for this event")  
@@ -99,6 +101,9 @@ class ScoreForm(forms.ModelForm):
         
 class ScoreAdmin(admin.ModelAdmin):
     form = ScoreForm
+    list_display('score',)
+    
+   
     def get_form(self, request, obj=None, **kwargs):
         form = super(ScoreAdmin, self).get_form(request, obj, **kwargs)
         form.current_user = request.user
@@ -111,7 +116,7 @@ class ScoreAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'score_report', 'total_scores', 'high_school_scores', 'middle_school_scores', 'elementary_school_scores', 'other_school_scores')
-    search_fields = ( 'name',)
+    search_fields = ('name',)
 
     # def show_link(self, obj):
     #    return '<a href="%s">Click here</a>' % obj.get_absolute_url()
@@ -135,7 +140,7 @@ class EventAdmin(admin.ModelAdmin):
 admin.site.unregister(Event)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Score, ScoreAdmin)
-admin.site.register(EggDropScore)
+
 
 def TopTenPerEvent(request):
     all_events = Event.objects.all()
@@ -246,7 +251,7 @@ def AllScoresForSingleEventByDivision(request, event_id):
     
 AllScoresForSingleEventByDivision = staff_member_required(AllScoresForSingleEventByDivision)
 
-admin.site.register(DrillingMudScore    )
+
 
 def RetabulateDrillingMudScores(request):
     drilling_mud_scores = DrillingMudScore.objects.all()
@@ -259,23 +264,80 @@ admin.site.register_view('retabDrillingMudScores', RetabulateDrillingMudScores)
 
 
 
-#GravityCarScore
-#WaterRocketScore
+class DrillingMudForm(ScoreForm):    
+    def __init__(self, *args, **kwargs):
+        
+        super(DrillingMudForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='DMUD')
+        
+        standard_events = standard_events.filter(owners=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+        
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+
+class DrillingMudAdmin(ScoreAdmin):
+    form = DrillingMudForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(DrillingMudAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+       
+        return form    
+    pass  
+
+
+class EggDropScoreForm(ScoreForm):    
+    def __init__(self, *args, **kwargs):
+        
+        super(EggDropScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='EGD')
+        
+        standard_events = standard_events.filter(owners=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+        
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+
+class EggDropScoreAdmin(ScoreAdmin):
+    form  = EggDropScoreForm    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(EggDropScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+       
+        return form    
+    pass
+
+
+
+admin.site.register(DrillingMudScore,DrillingMudAdmin)
+admin.site.register(EggDropScore,EggDropScoreAdmin)
+# GravityCarScore
+# WaterRocketScore
 #
-#GravityCarScoreAdmin
-#WaterRocketScoreAdmin
+# GravityCarScoreAdmin
+# WaterRocketScoreAdmin
 #
-#GravityCarScoreForm
-#WaterRocketScoreForm
+# GravityCarScoreForm
+# WaterRocketScoreForm
 #
-#DrillingMudScoreAdmin
-#DrillingMudScoreForm
+# DrillingMudScoreAdmin
+# DrillingMudScoreForm
 #
-#EggDropScoreForm
-#EggDropScoreAdmin
+# EggDropScoreForm
+# EggDropScoreAdmin
 #
-#VolcanoScoreAdmin
-#VolcanoScoreForm
+# VolcanoScoreAdmin
+# VolcanoScoreForm
 
 
    
