@@ -30,6 +30,7 @@ class SchoolAdmin(admin.ModelAdmin):
 class ParticipantAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('teacher',)
+    filter_horizontal = ('teams',)
     search_fields = ( 'name',)
 
     
@@ -38,23 +39,8 @@ admin.site.register(Team, TeamAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(Teacher)
 admin.site.register(Participant, ParticipantAdmin)
-# # Define an inline admin descriptor for UserProfile model
-# # which acts a bit like a singleton
-# class UserProfileInline(admin.StackedInline):
-#    model = TeacherProfile
-#    can_delete = False
-#    verbose_name_plural = 'TeacherProfile'
-#    
-# # Define a new User admin
-# class UserAdmin(UserAdmin):
-#    inlines = (UserProfileInline, )
-#
-# # Re-register UserAdmin
-# admin.site.unregister(User)
-# admin.site.register(User, UserAdmin)
-# ##
 
-#@cache_page(60 * 3)
+
 def GetParticipantLabels(request):
     # Create the HttpResponse object with the appropriate PDF headers.
     response = HttpResponse(mimetype='application/pdf')
@@ -109,16 +95,6 @@ def GetParticipantLabels(request):
             
             barcode = code128.Code128(str(participant['sid']),barHeight=15*mm, humanReadable=True)
             barcode.drawOn(p, x+10,y-150)
-            #barcode = QrCodeWidget('12213123')
-            #b = barcode.getBounds()
-
-            #w=b[2]-b[0] 
-            #h=b[3]-b[1] 
-
-            #d = Drawing(45,45,transform=[45./w,0,0,45./h,0,0]) 
-            #d.add(barcode)
-
-            #renderPDF.draw(d, p, x+200, y-120)
             
             name_parts = participant['name'].split()
             name_string = ''
