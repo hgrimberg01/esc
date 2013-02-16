@@ -51,8 +51,7 @@ class ScoreForm(forms.ModelForm):
     def clean_team(self):  
         selected_event = Event.objects.get(name=self.cleaned_data['event'])
         owners = selected_event.owners.all()
-        users = User.objects.filter(groups=owners)
-        emails = [user.email for user in users]
+
         try:
             team = self.cleaned_data['team']
         except:
@@ -60,6 +59,9 @@ class ScoreForm(forms.ModelForm):
         try:
             event_prereg = PreRegistration.objects.get(event=selected_event, teams=Team.objects.get(name=self.cleaned_data['team']))
         except:
+            users = User.objects.filter(groups__in=owners)
+            
+            emails = [user.email for user in users]
             subject = 'ERROR:Team %s (Number: %s) is not registered for event %s' % (team.name, str(team.id), selected_event.name,)
             message = 'An error has occurred. \r\n  Team %s (Number: %s) is not registered for event %s. \n User:%s' % (team.name, str(team.id), selected_event.name, self.current_user.username,)
             html = '<!DOCTYPE html><html><head><title>%s</title>' % (subject,)
