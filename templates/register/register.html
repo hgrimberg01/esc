@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+   <meta charset="utf-8" />
+   <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame -->
+   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+   <!-- Mobile viewport optimized: h5bp.com/viewport -->
+   <meta name="viewport" content="width=device-width">
+
+   <title>Register for KU Expo Scoring System</title>
+
+   <meta name="robots" content="index, nofollow">
+ 
+   
+   <!-- remove or comment this line if you want to use the local fonts -->
+   <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700' rel='stylesheet' type='text/css'>
+
+   <!--<link rel="stylesheet" type="text/css" href="content/css/bootstrap.css">-->
+   <link rel="stylesheet" type="text/css" href="http://people.eecs.ku.edu/~hgrimber/bootmetro/content/css/bootmetro-icons.css">
+   <link rel="stylesheet" type="text/css" href="http://people.eecs.ku.edu/~hgrimber/bootmetro/content/css/bootmetro.css">
+   <link rel="stylesheet" type="text/css" href="http://people.eecs.ku.edu/~hgrimber/bootmetro/content/css/bootmetro-responsive.css">
+   <link rel="stylesheet" type="text/css" href="http://people.eecs.ku.edu/~hgrimber/bootmetro/content/css/bootmetro-ui-light.css">
+   <link rel="stylesheet" type="text/css" href="http://people.eecs.ku.edu/~hgrimber/bootmetro/content/css/datepicker.css">
+   <!--[if IE 7]>
+   <link rel="stylesheet" type="text/css" href="http://people.eecs.ku.edu/~hgrimber/bootmetro/content/css/bootmetro-icons-ie7.css">
+   <![endif]-->
+
+
+</head>
+
+<body>
+
+<form action="/register/" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Submit" />
+</form>
+
+
+   <!-- Grab Google CDN's jQuery. fall back to local if necessary -->
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+   <script>window.jQuery || document.write("<script src='http://people.eecs.ku.edu/~hgrimber/bootmetro/scripts/jquery-1.8.3.min.js'>\x3C/script>")</script>
+
+   <script type="text/javascript" src="http://people.eecs.ku.edu/~hgrimber/bootmetro/scripts/bootstrap.min.js"></script>
+ 
+   </body>
+   </html>

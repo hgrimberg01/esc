@@ -4,9 +4,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from adminplus import AdminSitePlus
-from scoring.views import get_team_scores
-from django.shortcuts import render_to_response
 from django.views.generic.simple import direct_to_template
+
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from django.conf import settings
@@ -15,14 +14,16 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 
-     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-     url(r'^admin/scoring/getEventScore/(?P<event_id>\d+)/$','scoring.admin.AllScoresForSingleEventByDivision'),
-     url(r'^api/getTeamScore/(?P<team_id>\d+)/$','scoring.views.get_team_scores'),
-     url(r'^api/getTeams/$','registration.views.get_teams'),   
-  
+     url(r'^admin/scoring/getEventScore/(?P<event_id>\d+)/$', 'scoring.admin.AllScoresForSingleEventByDivision'),
+     url(r'^api/getTeamScore/(?P<team_id>\d+)/$', 'scoring.views.get_team_scores'),
+     url(r'^api/getTeams/$', 'registration.views.get_teams'),
      url(r'^admin/', include(admin.site.urls)),
-     url(r'^$','scoring.views.index'),
-     url(r'^call/initial/$','scoring.views.get_phone_intro'),
-     url(r'^call/getScore/$','scoring.views.get_phone_score'),
-     url(r'^sms/getScore/$','scoring.views.get_sms_score'),
+  
+     url(r'^register/thanks/$', direct_to_template, {
+        'template': 'register/thanks.html'}),
+     url(r'^$', 'scoring.views.index'),
+        url(r'^register/$', 'register.views.reg_usr'),
+     url(r'^call/initial/$', 'scoring.views.get_phone_intro'),
+     url(r'^call/getScore/$', 'scoring.views.get_phone_score'),
+     url(r'^sms/getScore/$', 'scoring.views.get_sms_score'),
 )

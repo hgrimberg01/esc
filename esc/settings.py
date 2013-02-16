@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     'scoring',
     'adminplus',
     'django_twilio',
+    'register',
   
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
