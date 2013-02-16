@@ -16,6 +16,7 @@ def reg_usr(request):
             password = User.objects.make_random_password()
             new_user = User(username=info['username'],first_name=info['first_name'],last_name=info['last_name'],email=info['email'],is_staff=True)
             new_user.set_password(password)
+            new_user.save()
             for event in info['events']:
                 try:
                     grp = Group.objects.get(name=event.name)
