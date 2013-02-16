@@ -59,15 +59,17 @@ def GetParticipantLabels(request):
     LABELH = 3 * inch
     
     data = []
-    students = Participant.objects.all()
+    students = Participant.objects.all().order_by('-name',)
     
     for student in students:
         team_names = []
+        first_school = 'N//A'
         for team in student.teams.all():
+            first_school=team.school.name
             obj = {'team_id':team.id, 'team_name':team.name}
             team_names.append(obj)
         
-        label = {'name':student.name,'sid':student.id, 'teams':team_names}
+        label = {'name':student.name,'sid':student.id, 'teams':team_names,'school':first_school}
         data.append(label)
 
     
@@ -91,10 +93,10 @@ def GetParticipantLabels(request):
             p.rect(x, y, LABELW / 2, -LABELH)
             tx = p.beginText(x + 25, y - 50)
             p.drawImage(settings.STATIC_ROOT+'ku/jayhawk.png', x+200, y-210, preserveAspectRatio=True)
-            tx.setFont('Helvetica', 36, 36)
+            tx.setFont('Courier', 32, 32)
             
             barcode = code128.Code128(str(participant['sid']),barHeight=15*mm, humanReadable=True)
-            barcode.drawOn(p, x+10,y-150)
+            barcode.drawOn(p, x+10,y-180)
             
             name_parts = participant['name'].split()
             name_string = ''
@@ -102,16 +104,24 @@ def GetParticipantLabels(request):
                 name_string = name_string + '\n' + name_part
             tx.textLines(name_string)
             p.drawText(tx)
+            
+            ts = p.beginText(x+25,y-135)
+            ts.setFont('Courier', 16, 16)
+            ts.textLine(participant['school'])
+            p.drawText(ts)
+            
+            
             team_string = ''
             
             for team in participant['teams']:
                 team_string = team_string + '\n' + team['team_name'] + ' : ' + str(team['team_id'])
                 for event_team in PreRegistration.objects.filter(teams__name=team['team_name']):
                     team_string = team_string + '\n' + event_team.event.name
+                team_string =  team_string + '\n*******************'
         
-            
-            tx = p.beginText(x + 325, y - 50)
-            tx.setFont('Helvetica', 12, 12)
+       
+            tx = p.beginText(x + 325, y - 30)
+            tx.setFont('Courier', 12, 12)
             tx.textLines(team_string)
             
             
