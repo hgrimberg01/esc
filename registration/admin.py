@@ -63,7 +63,7 @@ def GetParticipantLabels(request):
     
     for student in students:
         team_names = []
-        first_school = 'N//A'
+        first_school = ''
         for team in student.teams.all():
             first_school=team.school.name
             obj = {'team_id':team.id, 'team_name':team.name}
@@ -93,10 +93,10 @@ def GetParticipantLabels(request):
             p.rect(x, y, LABELW / 2, -LABELH)
             tx = p.beginText(x + 25, y - 50)
             p.drawImage(settings.STATIC_ROOT+'ku/jayhawk.png', x+200, y-210, preserveAspectRatio=True)
+       
             tx.setFont('Courier', 32, 32)
             
-            barcode = code128.Code128(str(participant['sid']),barHeight=15*mm, humanReadable=True)
-            barcode.drawOn(p, x+10,y-180)
+          
             
             name_parts = participant['name'].split()
             name_string = ''
@@ -107,7 +107,7 @@ def GetParticipantLabels(request):
             
             ts = p.beginText(x+25,y-135)
             ts.setFont('Courier', 16, 16)
-            ts.textLine(participant['school'])
+            ts.textLine(participant['school'][:25])
             p.drawText(ts)
             
             
