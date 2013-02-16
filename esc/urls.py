@@ -17,6 +17,7 @@ urlpatterns = patterns('',
      url(r'^admin/scoring/getEventScore/(?P<event_id>\d+)/$', 'scoring.admin.AllScoresForSingleEventByDivision'),
      url(r'^api/getTeamScore/(?P<team_id>\d+)/$', 'scoring.views.get_team_scores'),
      url(r'^api/getTeams/$', 'registration.views.get_teams'),
+     url(r'^api/getTeamsAndStudents/$', 'registration.views.get_teams_people'),
      url(r'^admin/', include(admin.site.urls)),
   
      url(r'^register/thanks/$', direct_to_template, {
