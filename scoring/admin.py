@@ -101,10 +101,17 @@ class ScoreForm(forms.ModelForm):
 class ScoreAdmin(admin.ModelAdmin):
     form = ScoreForm
     list_display = ('event', 'team', 'score')
-    list_filter = ('event','team__division')
+    list_filter = ('event', 'team__division')
     search_fields = ('team',)
+    
     raw_id_fields = ('team',)
-   
+    def queryset(self, request):
+        qs = super(ScoreAdmin, self).queryset(request)
+        user_groups = request.user.groups.all()
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(event__owners=user_groups)
+         
     def get_form(self, request, obj=None, **kwargs):
         form = super(ScoreAdmin, self).get_form(request, obj, **kwargs)
         form.current_user = request.user
@@ -134,6 +141,13 @@ class EventAdmin(admin.ModelAdmin):
         return str(Score.objects.filter(event=obj).filter(team__division='ES').count())
     def other_school_scores(self, obj):
         return str(Score.objects.filter(event=obj).filter(team__division='OTH').count())
+    
+    def queryset(self, request):
+        qs = super(EventAdmin, self).queryset(request)
+        user_groups = request.user.groups.all()
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(owners=user_groups)
     
     
     score_report.allow_tags = True
