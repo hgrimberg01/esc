@@ -23,7 +23,7 @@ def reg_usr(request):
                 except:
                     print 'err'
             message = 'Thank you '+new_user.first_name + ' ' + new_user.last_name + '\n'
-            message = message + 'Your username is '+new_user.email + '\n'   
+            message = message + 'Your username is '+new_user.username + '\n'   
             message = message + 'Your temporary is '+password + '\n'    
             message = message + 'You may now login at http://kuexpo.cloudapp.net/admin/'+'\n'
             message = message + 'Please remember to change your password(top right corner when logged in)'      
