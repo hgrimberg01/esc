@@ -21,8 +21,8 @@ class Event(models.Model):
 
 
 class Score(models.Model):
-    event = models.ForeignKey(Event,help_text='Select an Event')
-    team = models.ForeignKey(Team,help_text='Enter the Team ID')
+    event = models.ForeignKey(Event, help_text='Select an Event')
+    team = models.ForeignKey(Team, help_text='Enter the Team ID')
     score = models.FloatField(help_text='Enter the teams score')
     disqualified = models.BooleanField(help_text='Check if the score is disqualified')
     normalized_score = models.FloatField(blank=True, null=True)
@@ -188,7 +188,9 @@ class DrillingMudScore(Score):
         self.price_time = time_price
         
         rank = DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, price_time__gt=time_price).count()
-       
+        if rank == 0 or rank == None:
+            rank = 1.0
+            
         rank_score = rank - 1.0
 
         final_score = 25 + ingredient_doc_score + ingredient_score + ingredient_price_score + rank_score + self.cuttings_left + poster_score
@@ -212,13 +214,44 @@ class GravityCarScore(Score):
     time = models.FloatField(help_text='Time for car')
     weight = models.FloatField(help_text='Weight for car')
     def save(self, force_insert=False, force_update=False):
-       max_time =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['time'])
-       min_time =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['time'])
-       max_weight =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['weight'])
-       min_weight =  GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['weight'])
-       a = 50.0*(max_time-self.time)/(max_time-min_time)
-       b = 50.0*(max_weight-self.weight)/(max_weight-min_weight)
-       self.score = a+b
+       max_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['time'])
+       min_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['time'])
+       max_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['weight'])
+       min_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['weight'])
+       
+       if(max_time_query['time_max'] == None):
+           max_time = self.time
+       elif(max_time_query['time_max'] < self.time):
+           max_time = self.time
+       else:
+          max_time = max_time_query['time_max']
+          
+       if(min_time_query['time_min'] == None):
+           min_time = 0
+       elif(mix_time_query['time_min'] > self.time):
+           min_time = self.time
+       else:
+          mix_time = max_time_query['time_min']
+          
+       if(max_weight_query['weight_max'] == None):
+           max_weight = self.weight
+       elif(max_weight_query['weight_max'] < self.weight):
+           max_weight = self.weight
+       else:
+          max_weight = max_weight_query['weight_max']
+          
+       if(min_weight_query['weight_min'] == None):
+           min_weight = 0
+       elif(min_weight_query['weight_min'] > self.weight):
+           min_weight = self.time
+       else:
+          mix_weight = max_weightquery['time_min']  
+           
+           
+       
+       a = 50.0 * (max_time - self.time) / (max_time - min_time)
+       b = 50.0 * (max_weight - self.weight) / (max_weight - min_weight)
+       self.score = a + b
        
        max_possible = self.event.max_score
        min_possible = self.event.min_score
