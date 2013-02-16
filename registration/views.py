@@ -17,7 +17,7 @@ def get_teams_people(request):
         std_name = []
         for participant in participants:
             std_name.append({'student_id':participant.id,'student_name':participant.name})
-        data.append({'team_name':team.name,'students':std_name})
+        data.append({'team_name':team.name,'team_id':team.id,'students':std_name})
         
     return_data = json.dumps(data)
     return HttpResponse(return_data, content_type="application/json")
