@@ -15,6 +15,7 @@ from reportlab.graphics.barcode.qr import QrCodeWidget
 from reportlab.graphics import renderPDF    
 from reportlab.graphics.barcode import code128
 import time
+import csv
 
 class TeamAdmin(admin.ModelAdmin):
     list_filter = ('school', 'division',)
@@ -139,4 +140,21 @@ def GetParticipantLabels(request):
     
 GetParticipantLabels = staff_member_required(GetParticipantLabels)
 admin.site.register_view('labels/GetAllParticipantLabels', GetParticipantLabels)        
+    
+def get_school_participant_list(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="participant_team_list_' + time.strftime("%b_%d_%Y_%H_%M", time.gmtime()) + '.csv"'
+    writer = csv.writer(response,dialect='excel')  
+    data = []
+    for school in School.objects.all():
+        for team in Team.objects.filter(school=school):
+            students = [student.name for student in Participant.objects.filter(teams=team)]
+            l = students
+            l.insert(0,team.name)
+            l.insert(0,school.name)
+            writer.writerow(l)
+    return response
+
+get_school_participant_list = staff_member_required(get_school_participant_list)
+admin.site.register_view('csv/GetSchoolParticipantCsv', get_school_participant_list)
     
