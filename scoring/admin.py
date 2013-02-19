@@ -22,7 +22,7 @@ class PreRegistrationAdmin(admin.ModelAdmin):
     list_display = ('teams', 'event',)
     list_filter = ('event',)
     search_fields = ('teams__name', 'event__name',)
-    
+    raw_id_fields = ('teams',)
 admin.site.register(PreRegistration, PreRegistrationAdmin)   
 
      
