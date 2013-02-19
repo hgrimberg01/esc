@@ -1,5 +1,5 @@
 from django.contrib import admin
-from scoring.models import Event, Score, EggDropScore, VolcanoScore, PreRegistration, DrillingMudScore
+from scoring.models import Event, Score, EggDropScore, VolcanoScore, PreRegistration, DrillingMudScore, GravityCarScore
 from registration.models import Team
 from django import forms
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
@@ -334,27 +334,33 @@ class EggDropScoreAdmin(ScoreAdmin):
         return form    
     pass
 
+class GravityCarScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+        
+        super(GravityCarScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='GCAR').distinct()
+        
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+        
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+        
+class GravityCarScoreAdmin(ScoreAdmin):
+    form = GravityCarScoreForm   
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(GravityCarScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+       
+        return form    
+    pass
+
 
 
 admin.site.register(DrillingMudScore, DrillingMudAdmin)
 admin.site.register(EggDropScore, EggDropScoreAdmin)
-# # GravityCarScore
-# # WaterRocketScore
-# #
-# # GravityCarScoreAdmin
-# # WaterRocketScoreAdmin
-# #
-# # GravityCarScoreForm
-# # WaterRocketScoreForm
-# #
-# # DrillingMudScoreAdmin
-# # DrillingMudScoreForm
-# #
-# # EggDropScoreForm
-# # EggDropScoreAdmin
-# #
-# # VolcanoScoreAdmin
-# # VolcanoScoreForm
-#
-#
-#   
+admin.site.register(GravityCarScore, GravityCarScoreAdmin)

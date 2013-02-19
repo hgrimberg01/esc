@@ -214,43 +214,46 @@ class GravityCarScore(Score):
     time = models.FloatField(help_text='Time for car')
     weight = models.FloatField(help_text='Weight for car')
     def save(self, force_insert=False, force_update=False):
-       max_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['time'])
-       min_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['time'])
-       max_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max['weight'])
-       min_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min['weight'])
-       
-       if(max_time_query['time_max'] == None):
+       max_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('time'))
+       min_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('time'))
+       max_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight'))
+       min_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('weight'))
+       print max_time_query
+       if(max_time_query['time__max'] == None):
            max_time = self.time
-       elif(max_time_query['time_max'] < self.time):
+       elif(max_time_query['time__max'] < self.time):
            max_time = self.time
        else:
-          max_time = max_time_query['time_max']
+          max_time = max_time_query['time__max']
           
-       if(min_time_query['time_min'] == None or min_time_query['time_min'] == max_time ):
-           min_time = 0
-       elif(mix_time_query['time_min'] > self.time):
+       if(min_time_query['time__min'] == None or min_time_query['time__min'] == max_time ):
+           min_time = 0.0
+       elif(min_time_query['time__min'] > self.time):
            min_time = self.time
        else:
-          mix_time = max_time_query['time_min']
+          min_time = min_time_query['time__min']
           
-       if(max_weight_query['weight_max'] == None):
+       if(max_weight_query['weight__max'] == None):
            max_weight = self.weight
-       elif(max_weight_query['weight_max'] < self.weight):
+       elif(max_weight_query['weight__max'] < self.weight):
            max_weight = self.weight
        else:
-          max_weight = max_weight_query['weight_max']
+          max_weight = max_weight_query['weight__max']
           
-       if(min_weight_query['weight_min'] == None or min_weight_query['weight_min'] == max_weight ):
-           min_weight = 0
-       elif(min_weight_query['weight_min'] > self.weight):
+       if(min_weight_query['weight__min'] == None or min_weight_query['weight__min'] == max_weight ):
+           min_weight = 0.0
+       elif(min_weight_query['weight__min'] > self.weight):
            min_weight = self.time
        else:
-          mix_weight = max_weightquery['time_min']  
+          min_weight = min_weight_query['weight__min']  
            
            
        
        a = 50.0 * (max_time - self.time) / (max_time - min_time)
        b = 50.0 * (max_weight - self.weight) / (max_weight - min_weight)
+       print a+b
+       print max_time
+       print self.time
        self.score = a + b
        
        max_possible = self.event.max_score
