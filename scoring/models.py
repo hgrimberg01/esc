@@ -25,7 +25,7 @@ class Score(models.Model):
     team = models.ForeignKey(Team, help_text='Enter the Team ID')
     score = models.FloatField(help_text='Enter the teams score')
     disqualified = models.BooleanField(help_text='Check if the score is disqualified')
-    normalized_score = models.FloatField(blank=True, null=True)
+    normalized_score = models.FloatField(blank=True, null=True,editable=False)
     dateTimeStamp = models.DateTimeField(auto_now=True)
     def save(self, force_insert=False, force_update=False):
         max_possible = self.event.max_score
