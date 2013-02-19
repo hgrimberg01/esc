@@ -116,7 +116,7 @@ class VolcanoScore(Score):
         else:
             max_time = max_time_query['time__max']
             
-        if min_time_query['time__min'] == None:
+        if min_time_query['time__min'] == None or min_time_query['time__min'] == max_time :
             min_time = 00.00
         elif min_time_query['time__min'] > self.time:
             min_time = self.time
@@ -130,7 +130,7 @@ class VolcanoScore(Score):
         else:
             max_distance = max_distance_query['distance__max']
             
-        if min_distance_query['distance__min'] == None:
+        if min_distance_query['distance__min'] == None or min_distance_query['distance__min'] == max_distance :
             min_distance = 00.00
         elif min_distance_query['distance__min'] > self.distance:
             min_distance = self.distance
@@ -226,7 +226,7 @@ class GravityCarScore(Score):
        else:
           max_time = max_time_query['time_max']
           
-       if(min_time_query['time_min'] == None):
+       if(min_time_query['time_min'] == None or min_time_query['time_min'] == max_time ):
            min_time = 0
        elif(mix_time_query['time_min'] > self.time):
            min_time = self.time
@@ -240,7 +240,7 @@ class GravityCarScore(Score):
        else:
           max_weight = max_weight_query['weight_max']
           
-       if(min_weight_query['weight_min'] == None):
+       if(min_weight_query['weight_min'] == None or min_weight_query['weight_min'] == max_weight ):
            min_weight = 0
        elif(min_weight_query['weight_min'] > self.weight):
            min_weight = self.time
