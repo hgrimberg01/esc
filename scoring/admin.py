@@ -37,10 +37,10 @@ class ScoreForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         
         super(ScoreForm, self).__init__(*args, **kwargs)
-        standard_events = Event.objects.filter(event_score_type='STD')
-        
-        standard_events = standard_events.filter(owners=self.current_groups)
-        
+        standard_events = Event.objects.filter(event_score_type='STD').distinct()
+      
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+        # print standard_events
         event_widget = self.fields['event'].widget
         
         choices = []
@@ -57,7 +57,7 @@ class ScoreForm(forms.ModelForm):
         except:
              raise forms.ValidationError("Team ID is incorrect or does not exist")
         try:
-            event_prereg = PreRegistration.objects.get(event=selected_event, teams=Team.objects.get(name=self.cleaned_data['team']))
+            event_prereg = PreRegistration.objects.get(event=selected_event, teams=self.cleaned_data['team'])
         except:
             users = User.objects.filter(groups__in=owners)
             
@@ -285,9 +285,9 @@ class DrillingMudForm(ScoreForm):
     def __init__(self, *args, **kwargs):
         
         super(DrillingMudForm, self).__init__(*args, **kwargs)
-        standard_events = Event.objects.filter(event_score_type='DMUD')
+        standard_events = Event.objects.filter(event_score_type='DMUD').distinct()
         
-        standard_events = standard_events.filter(owners=self.current_groups)
+        standard_events = standard_events.filter(owners__in=self.current_groups)
 
         event_widget = self.fields['event'].widget
         
@@ -312,9 +312,9 @@ class EggDropScoreForm(ScoreForm):
     def __init__(self, *args, **kwargs):
         
         super(EggDropScoreForm, self).__init__(*args, **kwargs)
-        standard_events = Event.objects.filter(event_score_type='EGD')
+        standard_events = Event.objects.filter(event_score_type='EGD').distinct()
         
-        standard_events = standard_events.filter(owners=self.current_groups)
+        standard_events = standard_events.filter(owners__in=self.current_groups)
 
         event_widget = self.fields['event'].widget
         
