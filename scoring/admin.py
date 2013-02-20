@@ -112,7 +112,7 @@ class ScoreAdmin(admin.ModelAdmin):
         user_groups = request.user.groups.all()
         if request.user.is_superuser:
             return qs
-        return qs.filter(event__owners=user_groups)
+        return qs.filter(event__owners__in=user_groups)
          
     def get_form(self, request, obj=None, **kwargs):
         form = super(ScoreAdmin, self).get_form(request, obj, **kwargs)
@@ -149,7 +149,7 @@ class EventAdmin(admin.ModelAdmin):
         user_groups = request.user.groups.all()
         if request.user.is_superuser:
             return qs
-        return qs.filter(owners=user_groups)
+        return qs.filter(owners__in=user_groups)
     
     
     score_report.allow_tags = True
