@@ -360,6 +360,15 @@ class GravityCarScoreAdmin(ScoreAdmin):
     pass
 
 
+def RetabulateGravityCarScores(request):
+    gravity_car_scores = GravityCarScore.objects.all()
+  
+    for gravity_car_scores in gravity_car_scores:
+        gravity_car_scores.save()
+    return  HttpResponseRedirect('/admin/')
+RetabulateGravityCarScores = staff_member_required(RetabulateGravityCarScores)
+admin.site.register_view('retabGravityCarScores', RetabulateGravityCarScores)
+
 
 admin.site.register(DrillingMudScore, DrillingMudAdmin)
 admin.site.register(EggDropScore, EggDropScoreAdmin)
