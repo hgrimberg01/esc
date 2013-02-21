@@ -160,7 +160,7 @@ class DrillingMudScore(Score):
     price_documented = models.BooleanField()
     price_per_liter = models.FloatField()
     slide_time = models.FloatField()
-    price_time = models.FloatField()
+    price_time = models.FloatField(editable=False)
     cuttings_left = models.IntegerField()
     group_poster = models.BooleanField()
     def save(self, force_insert=False, force_update=False): 
