@@ -13,10 +13,6 @@ from django.contrib.auth.models import User, Group
 import simplejson as json
 from django.core.mail import send_mass_mail, EmailMultiAlternatives
 from django.views.decorators.cache import cache_page
-admin.site.register(Event)
-
-admin.site.register(VolcanoScore)
-
 
 class PreRegistrationAdmin(admin.ModelAdmin):
     list_display = ('teams', 'event',)
@@ -154,7 +150,7 @@ class EventAdmin(admin.ModelAdmin):
     
     score_report.allow_tags = True
 
-admin.site.unregister(Event)
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(Score, ScoreAdmin)
 
@@ -360,6 +356,32 @@ class GravityCarScoreAdmin(ScoreAdmin):
     pass
 
 
+class VolcanoScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+        
+        super(VolcanoScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='VLN').distinct()
+        
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+        
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+        
+class VolcanoScoreAdmin(ScoreAdmin):
+    form = VolcanoScoreForm   
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(VolcanoScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+       
+        return form    
+    pass
+
+
 def RetabulateGravityCarScores(request):
     gravity_car_scores = GravityCarScore.objects.all()
   
@@ -373,3 +395,4 @@ admin.site.register_view('retabGravityCarScores', RetabulateGravityCarScores)
 admin.site.register(DrillingMudScore, DrillingMudAdmin)
 admin.site.register(EggDropScore, EggDropScoreAdmin)
 admin.site.register(GravityCarScore, GravityCarScoreAdmin)
+admin.site.register(VolcanoScore, VolcanoScoreAdmin)
