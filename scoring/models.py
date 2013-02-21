@@ -23,7 +23,7 @@ class Event(models.Model):
 class Score(models.Model):
     event = models.ForeignKey(Event, help_text='Select an Event')
     team = models.ForeignKey(Team, help_text='Enter the Team ID')
-    score = models.FloatField(help_text='Enter the teams score')
+    score = models.FloatField(help_text='Enter the teams score',default=0.01)
     disqualified = models.BooleanField(help_text='Check if the score is disqualified')
     normalized_score = models.FloatField(blank=True, null=True,editable=False)
     dateTimeStamp = models.DateTimeField(auto_now=True)
