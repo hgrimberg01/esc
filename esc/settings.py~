@@ -2,7 +2,6 @@
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-import os
 
 ADMINS = (
      ('Howard Grimberg', 'hgrimberg@ku.edu'),
@@ -125,7 +124,7 @@ INSTALLED_APPS = (
     'adminplus',
     'django_twilio',
     'register',
-
+  
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
