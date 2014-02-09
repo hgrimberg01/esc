@@ -6,5 +6,5 @@ setup(name='KU EXPO Scoring',
       author='Howard Grimberg',
       author_email='hgrimberg@ku.edu',
       url='https://hgrimberg01@bitbucket.org/hgrimberg01/esc',
-      install_requires=['Django==1.4.3','simplejson','mysql-connector-python','django-twilio','reportlab','django-localflavor','django-localflavor-us','django-adminplus'],
+      install_requires=['Django==1.4.3','gunicorn','simplejson','mysql-connector-python','django-twilio','reportlab','django-localflavor','django-localflavor-us','django-adminplus'],
      )
