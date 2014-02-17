@@ -76,6 +76,7 @@ class PastaBridgeScore(Score):
         max_possible = self.event.max_score
         min_possible = self.event.min_score
         
+        # find max score
         max_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('materials_quotient'))
         if max_quotient_query['materials_quotient__max'] == None:
             max_possible = self.materials_quotient
@@ -84,6 +85,7 @@ class PastaBridgeScore(Score):
         else:
             max_possible = max_quotient_query['materials_quotient__max']
         
+        # find min score
         min_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('materials_quotient'))
         if min_quotient_query['materials_quotient__min'] == None or min_quotient_query['materials_quotient__min']:
             min_possible = 0.0
@@ -91,13 +93,49 @@ class PastaBridgeScore(Score):
             min_possible = self.materials_quotient
         else:
             min_possible = min_quotient_query['materials_quotient__min']
-            
+        
+        # apply score for team
+        self.score = materials_quotient
+        
+        # normalize
         dif_high_low = max_possible - min_possible
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
-        super(EggDropScore, self).save(force_insert, force_update) 
-            
+        super(EggDropScore, self).save(force_insert, force_update)        
+
+class SkyScraperScore(Score):
+    tower_height = models.FloatField()
+    tower_weight = models.FloatField()
+    weight_supported = models.FloatField()
+    def save(self, force_insert=False, force_update=False):
+        max_possible = self.event.max_score
+        min_possible = self.event.min_score
         
+        max_height_query = SkyScraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('tower_height'))
+        if max_height_query['tower_height__max'] == None:
+            max_height = self.tower_height
+        elif self.tower_height > max_height_query['tower_height__max']:
+            max_height = self.tower_height
+        else:
+            max_height = max_height_query['tower_height__max']
+        
+        min_height_query = SkyScraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('tower_height'))
+        if min_height_query['tower_height__min'] == None or min_height_query['tower_height__min'] == max_height:
+            min_height = self.tower_height
+        elif self.tower_height < min_height_query['tower_height__min']:
+            min_height = self.tower_height
+        else:
+            min_height = min_height_query['tower_height__min']
+        
+        max_weight_query = SkyScraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight_supported'))
+        if max_weight_query['weight_supported__max'] == None:
+            max_weight = self.weight_supported
+        elif self.weight_supported > max_weight_query['weight_supported']:
+            max_weight = self.weight_supported
+        else:
+            max_weight = max_weight_query['weight_supported__max']
+        
+        self.score = 
 class EggDropScore(Score):
     egg_safety_possible_scores = ((1.0, 'Intact'), (0.5, 'Broken'))
     flight_time = models.FloatField()
