@@ -58,7 +58,7 @@ def index(request):
 @twilio_view   
 def get_phone_intro(request):
     r = Response()
-    r.gather(action='/call/getScore/',method='GET').say('Welcome to the Kay You Engineering EXPO Scoring System. For score reports, please enter your team number and press pound.',voice='woman',language='en-gb')
+    r.gather(action='/call/getScore/',method='POST').say('Welcome to the Kay You Engineering EXPO Scoring System. For score reports, please enter your team number and press pound.',voice='woman',language='en-gb')
     
     return r
 
@@ -67,7 +67,7 @@ def get_phone_intro(request):
 @twilio_view   
 def get_phone_score(request):
     r = Response()
-    team_id = request.GET['Digits']
+    team_id = request.POST['Digits']
     try:
         team = Team.objects.get(pk=team_id)
         scores = Score.objects.filter(team=team)
@@ -86,14 +86,14 @@ def get_phone_score(request):
     return r
 
 @csrf_exempt
-#@require_POST    
+@require_POST    
 @twilio_view  
 def get_sms_score(request):
     r = Response()
-    return_number = request.GET['From']
+    return_number = request.POST['From']
     print return_number
     try:
-        team_id = request.GET['Body']
+        team_id = request.POST['Body']
         team = Team.objects.get(pk=team_id)
         scores = Score.objects.filter(team=team)
         sms_string = "Team:"+team.name +"\n"
