@@ -520,7 +520,7 @@ class IndoorCatapultsScoreForm(ScoreForm):
         event_widget.choices = choices
 
 class IndoorCatapultsScoreAdmin(ScoreAdmin):
-    form = GravityCarScoreForm
+    form = IndoorCatapultsScoreForm
     def get_form(self, request, obj=None, **kwargs):
         form = super(IndoorCatapultsScoreAdmin, self).get_form(request, obj, **kwargs)
         form.current_user = request.user
