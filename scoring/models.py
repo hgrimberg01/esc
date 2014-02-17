@@ -138,6 +138,22 @@ class SkyscraperScore(Score):
         
         self.score = (self.tower_height / max_height) + (self.weight_supported / max_weight) + (min_weight / self.tower_weight)
         
+        max_score_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('score'))
+        if max_score_query['score__max'] == None:
+            max_possible = self.score
+        elif self.weight_supported > max_weight_query['score__max']:
+            max_possible = self.score
+        else:
+            max_possible = max_score_query['score__max']
+            
+        min_score_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('score'))
+        if min_score_query['tower_score__min'] == None or min_score_query['score__min'] == max_possible:
+            min_possible = self.score
+        elif self.sore < min_score_query['score__min']:
+            min_possible = self.score
+        else:
+            min_possible = min_score_query['score__min'] 
+        
         dif_high_low = max_possible - min_possible
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
