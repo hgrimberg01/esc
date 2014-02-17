@@ -258,7 +258,7 @@ class ChemicalCarScore(Score):
             time_rank = 0.0
         
         # Find the number of cars that have the same time, but better weights
-        weight_rank = (ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time, weight__gt=self.weight).count()) / 1000.0
+        weight_rank = (ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time, weight__gt=self.weight).count())
         if weight_rank == 0 or weight_rank == None:
             weight_weight = 0.0
         
@@ -267,10 +267,10 @@ class ChemicalCarScore(Score):
         self.score = final_rank + 1
         
         num_compet = max_possible
-        self.normalized_score = round(((num_compet - final_rank) / num_compet) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        self.normalized_score = round(((num_compet - final_rank - 1) / num_compet) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(ChemicalCarScore, self).save(force_insert, force_update)
- 
-        
+
+      
 """
 Weight lifting applies the following formula:
 (Score)=[(Predicted force)-(Experimental force)] * (number of gears)
