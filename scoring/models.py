@@ -323,6 +323,7 @@ class WeightLiftingScore(Score):
         dif_score_high = self.score - min_possible
         
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        print str(self.team) + " Score " + str(self.normalized_score)
         super(GravityCarScore, self).save(force_insert, force_update)
 
         
