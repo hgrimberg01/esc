@@ -251,8 +251,6 @@ class ChemicalCarScore(Score):
         max_possible = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count()
         if max_possible == 0 or max_possible == None:
             max_possible = 1
-        # Lowest is the best rank, in a competition, first place is the min_possible and best rank
-        min_possible = 0.0
         
         # Find the number of cars that have better times
         time_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time__gt=self.time).count()
@@ -265,7 +263,7 @@ class ChemicalCarScore(Score):
         
         # Add 1 to make automated score reporting give a sensible rank, but keep ranking based on zero for normalization 
         final_rank = time_rank + weight_rank
-        self.score = final_rank + 1
+        self.score = final_rank
         
         num_compet = max_possible
         self.normalized_score = round(((num_compet - final_rank) / num_compet) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
