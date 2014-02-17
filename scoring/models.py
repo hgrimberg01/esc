@@ -275,13 +275,13 @@ Weight lifting applies the following formula:
 (Score)=[(Predicted force)-(Experimental force)] * (number of gears)
 Smaller scores are better
 """
-class WeightLiftingScores(Score):
+class WeightLiftingScore(Score):
     team_score = models.FloatField()
     def save(self, force_insert=False, force_update=False):
         max_possible = self.event.max_score
         min_possible = self.event.min_score
         
-        max_score_query = WeightLiftingScores.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('team_score'))
+        max_score_query = WeightLiftingScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('team_score'))
         if max_score_query['team_score__max'] == None:
             max_possible = self.team_score
         elif max_score_query['team_score__max'] < self.team_score:
@@ -289,7 +289,7 @@ class WeightLiftingScores(Score):
         else:
             max_possible = max_score_query['team_score__max']
         
-        min_score_query = WeightLiftingScores.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('team_score'))
+        min_score_query = WeightLiftingScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('team_score'))
         if min_score_query['team_score__min'] == None or min_score_query['team_score__min'] == self.team_score:
             min_possible = 0.0
         elif min_score_query['team_score__min'] > self.team_score:

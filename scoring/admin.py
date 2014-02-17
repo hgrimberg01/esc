@@ -264,15 +264,22 @@ RetabulateGravityCarScores = staff_member_required(RetabulateGravityCarScores)
 admin.site.register_view('retabGravityCarScores','Tabulate Final Gravity Car Scores', view=RetabulateGravityCarScores)
 
 def RetabulateEggDropScores(request):
-    egg_drop = EggDropScore.objects.all()
+    egg_drop_scores = EggDropScore.objects.all()
 
-    for egg_drop_score in egg_drop:
+    for egg_drop_score in egg_drop_scores:
         egg_drop_score.save()
     return  HttpResponseRedirect('/admin/')
 RetabulateEggDropScores = staff_member_required(RetabulateEggDropScores)
 admin.site.register_view('retabEggdrop','Tabulate Final Egg Drop Scores', view=RetabulateEggDropScores)
 
-
+def RetabulatePastaBridgeScores(request):
+    pasta_bridge_scores = PastaBridgeScore.objects.all()
+    
+    for pasta_bridge_score in pasta_bridge_scores:
+        pasta_bridge_score.save()
+    return HttpResponseRedirect('/admin/')
+RetabulatePastaBridgeScores = staff_member_required(RetabulatePastaBridgeScores)
+admin.site.register_view('retabPastaBridge', 'Tabulate Final Pasta Bridge Scores', view=RetabulatePastaBridgeScores)
 
 class DrillingMudForm(ScoreForm):
     def __init__(self, *args, **kwargs):
