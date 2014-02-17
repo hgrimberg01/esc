@@ -26,9 +26,9 @@ def reg_usr(request):
             message = 'Thank you '+new_user.first_name + ' ' + new_user.last_name + '\n'
             message = message + 'Your username is '+new_user.username + '\n'   
             message = message + 'Your temporary is '+password + '\n'    
-            message = message + 'You may now login at http://kuexpo.cloudapp.net/admin/'+'\n'
+            message = message + 'You may now login at http://expo.zapto.org/admin/'+'\n'
             message = message + 'Please remember to change your password(top right corner when logged in)'      
-            send_mail('EXPO Scoring System User Info', message, 'scoring-system@kuexpo.cloudapp.net',(new_user.email,), fail_silently=False)
+            send_mail('EXPO Scoring System User Info', message, 'scoring-system@' + settings.EMAIL_HOST_USER,(new_user.email,), fail_silently=False)
             new_user.save()
             return HttpResponseRedirect('/register/thanks/') # Redirect after POST
     else:

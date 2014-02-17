@@ -245,6 +245,7 @@ def AllScoresForSingleEventByDivision(request, event_id):
 
 AllScoresForSingleEventByDivision = staff_member_required(AllScoresForSingleEventByDivision)
 
+# Drilling mud
 def RetabulateDrillingMudScores(request):
     drilling_mud_scores = DrillingMudScore.objects.all()
 
@@ -253,33 +254,6 @@ def RetabulateDrillingMudScores(request):
     return  HttpResponseRedirect('/admin/')
 RetabulateDrillingMudScores = staff_member_required(RetabulateDrillingMudScores)
 admin.site.register_view('retabDrillingMudScores','Tabulate Final Drilling Mud Scores',  view= RetabulateDrillingMudScores)
-
-def RetabulateGravityCarScores(request):
-    gravity_car_scores = GravityCarScore.objects.all()
-
-    for gravity_car_scores in gravity_car_scores:
-        gravity_car_scores.save()
-    return  HttpResponseRedirect('/admin/')
-RetabulateGravityCarScores = staff_member_required(RetabulateGravityCarScores)
-admin.site.register_view('retabGravityCarScores','Tabulate Final Gravity Car Scores', view=RetabulateGravityCarScores)
-
-def RetabulateEggDropScores(request):
-    egg_drop_scores = EggDropScore.objects.all()
-
-    for egg_drop_score in egg_drop_scores:
-        egg_drop_score.save()
-    return  HttpResponseRedirect('/admin/')
-RetabulateEggDropScores = staff_member_required(RetabulateEggDropScores)
-admin.site.register_view('retabEggdrop','Tabulate Final Egg Drop Scores', view=RetabulateEggDropScores)
-
-def RetabulatePastaBridgeScores(request):
-    pasta_bridge_scores = PastaBridgeScore.objects.all()
-    
-    for pasta_bridge_score in pasta_bridge_scores:
-        pasta_bridge_score.save()
-    return HttpResponseRedirect('/admin/')
-RetabulatePastaBridgeScores = staff_member_required(RetabulatePastaBridgeScores)
-admin.site.register_view('retabPastaBridge', 'Tabulate Final Pasta Bridge Scores', view=RetabulatePastaBridgeScores)
 
 class DrillingMudForm(ScoreForm):
     def __init__(self, *args, **kwargs):
@@ -307,6 +281,51 @@ class DrillingMudAdmin(ScoreAdmin):
         return form
     pass
 
+# Gravity Car
+def RetabulateGravityCarScores(request):
+    gravity_car_scores = GravityCarScore.objects.all()
+
+    for gravity_car_scores in gravity_car_scores:
+        gravity_car_scores.save()
+    return  HttpResponseRedirect('/admin/')
+RetabulateGravityCarScores = staff_member_required(RetabulateGravityCarScores)
+admin.site.register_view('retabGravityCarScores','Tabulate Final Gravity Car Scores', view=RetabulateGravityCarScores)
+
+class GravityCarScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+
+        super(GravityCarScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='GCAR').distinct()
+
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+class GravityCarScoreAdmin(ScoreAdmin):
+    form = GravityCarScoreForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(GravityCarScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+
+        return form
+    pass
+
+
+# Egg drop
+def RetabulateEggDropScores(request):
+    egg_drop_scores = EggDropScore.objects.all()
+
+    for egg_drop_score in egg_drop_scores:
+        egg_drop_score.save()
+    return  HttpResponseRedirect('/admin/')
+RetabulateEggDropScores = staff_member_required(RetabulateEggDropScores)
+admin.site.register_view('retabEggdrop','Tabulate Final Egg Drop Scores', view=RetabulateEggDropScores)
 
 class EggDropScoreForm(ScoreForm):
     def __init__(self, *args, **kwargs):
@@ -323,7 +342,6 @@ class EggDropScoreForm(ScoreForm):
             choices.append((element.id, element.name))
         event_widget.choices = choices
 
-
 class EggDropScoreAdmin(ScoreAdmin):
     form = EggDropScoreForm
     def get_form(self, request, obj=None, **kwargs):
@@ -333,6 +351,183 @@ class EggDropScoreAdmin(ScoreAdmin):
 
         return form
     pass
+
+
+# Skyscraper
+def RetabulateSkyscraperScores(request):
+    skyscraper_scores = SkyscraperScore.objects.all()
+    
+    for skycsraper_score in skyscraper_scores:
+        skyscraper_score.save()
+    return HttpResponseRedirect('/admin/')
+RetabulateSkyscraperScores = staff_member_required(RetabulateSkyscraperScores)
+admin.site.register_view('retabSkyscraper', 'Tabulate Final Skyscraper Scores', view=RetabulateSkyscraperScores)
+
+class SkyscraperScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+
+        super(SkyscraperScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='SKY').distinct()
+
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+class SkyscraperScoreAdmin(ScoreAdmin):
+    form = SkyscraperScoreForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(SkyscraperScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+
+        return form
+    pass
+
+# Pasta bridge
+def RetabulatePastaBridgeScores(request):
+    pasta_bridge_scores = PastaBridgeScore.objects.all()
+    
+    for pasta_bridge_score in pasta_bridge_scores:
+        pasta_bridge_score.save()
+    return HttpResponseRedirect('/admin/')
+RetabulatePastaBridgeScores = staff_member_required(RetabulatePastaBridgeScores)
+admin.site.register_view('retabPastaBridge', 'Tabulate Final Pasta Bridge Scores', view=RetabulatePastaBridgeScores)
+
+class PastaBridgeScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+
+        super(PastaBridgeScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='PBR').distinct()
+
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+class PastaBridgeScoreAdmin(ScoreAdmin):
+    form = PastaBridgeScoreForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(PastaBridgeScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+
+        return form
+    pass
+
+
+def RetabulateChemicalCarScores(request):
+    chemical_car_scores = ChemicalCarScore.objects.all()
+    
+    for chemical_car_score in chemical_car_scores:
+        chemical_car_score.save()
+    return HttpResponseRedirect('/admin/')
+RetabulateChemicalCarScores = staff_member_required(RetabulateChemicalCarScores)
+admin.site.register_view('retabChemicalCar', 'Tabulate Final Chemical Car Scores', view=RetabulateChemicalCarScores)
+
+class ChemicalCarScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+
+        super(ChemicalCarScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='CCAR').distinct()
+
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+class ChemicalCarScoreAdmin(ScoreAdmin):
+    form = ChemicalCarScoreForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(ChemicalCarScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+
+        return form
+    pass
+
+
+def RetabulateWeightLiftingScores(request):
+    weight_lifting_scores = WeightLiftingScore.objects.all()
+    
+    for weight_lifting_score in weight_lifting_scores:
+        weight_lifting_score.save()
+    return HttpResponseRedirect('/admin/')
+RetabulateWeightLiftingScores = staff_member_required(RetabulateWeightLiftingScores)
+admin.site.register_view('retabWeightLifting', 'Tabulate Final Weight Lifting Scores', view=RetabulateWeightLiftingScores)
+
+class WeightLiftingScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+
+        super(WeightLiftingScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='WLFT').distinct()
+
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+class WeightLiftingScoreAdmin(ScoreAdmin):
+    form = WeightLiftingScoreForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(WeightLiftingScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+
+        return form
+    pass
+
+
+def RetabulateIndoorCatapultsScores(request):
+    indoor_catapults_scores = IndoorCatapultsScore.objects.all()
+    
+    for indoor_catapults_score in indoor_catapults_scores:
+        indoor_catapults_score.save()
+    return HttpResponseRedirect('/admin/')
+RetabulateIdoorCatapultsScores = staff_member_required(RetabulateIndoorCatapultsScores)
+admin.site.register_view('retabIndoorCatapults', 'Tabulate Final Indoor Catapults Scores', view=RetabulateIndoorCatapultsScores)
+
+class IndoorCatapultsScoreForm(ScoreForm):
+    def __init__(self, *args, **kwargs):
+
+        super(IndoorCatapultsScoreForm, self).__init__(*args, **kwargs)
+        standard_events = Event.objects.filter(event_score_type='ICT').distinct()
+
+        standard_events = standard_events.filter(owners__in=self.current_groups)
+
+        event_widget = self.fields['event'].widget
+
+        choices = []
+        for element in standard_events:
+            choices.append((element.id, element.name))
+        event_widget.choices = choices
+
+class IndoorCatapultsScoreAdmin(ScoreAdmin):
+    form = GravityCarScoreForm
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(IndoorCatapultsScoreAdmin, self).get_form(request, obj, **kwargs)
+        form.current_user = request.user
+        form.current_groups = request.user.groups.all()
+
+        return form
+    pass
+
 
 
 """
@@ -370,31 +565,6 @@ class VolcanoScoreAdmin(ScoreAdmin):
         return form
     pass
 """
-
-class GravityCarScoreForm(ScoreForm):
-    def __init__(self, *args, **kwargs):
-
-        super(GravityCarScoreForm, self).__init__(*args, **kwargs)
-        standard_events = Event.objects.filter(event_score_type='GCAR').distinct()
-
-        standard_events = standard_events.filter(owners__in=self.current_groups)
-
-        event_widget = self.fields['event'].widget
-
-        choices = []
-        for element in standard_events:
-            choices.append((element.id, element.name))
-        event_widget.choices = choices
-
-class GravityCarScoreAdmin(ScoreAdmin):
-    form = GravityCarScoreForm
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(GravityCarScoreAdmin, self).get_form(request, obj, **kwargs)
-        form.current_user = request.user
-        form.current_groups = request.user.groups.all()
-
-        return form
-    pass
 
 admin.site.register(DrillingMudScore, DrillingMudAdmin)
 admin.site.register(EggDropScore, EggDropScoreAdmin)

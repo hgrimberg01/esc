@@ -187,7 +187,8 @@ GLOBAL_SETTINGS = {
     'MIN_NORMAL_SCORE': 0.0,
     'DECIMAL_PLACES_TO_ROUND':5,
     'SCHOOL_TYPES':(('HS','High School'),('MS','Middle School'),('ES','Elementary School'),('OTH','Other School'),),
-    'SCORE_TYPES' : (('STD', 'Standard'), ('EGD', 'Egg Drop'), ('VLN', 'Volcano'),('WRKT','Water Rocket'),('GCAR','Gravity Car'),('DMUD','Drilling Mud'),)
+    'SCORE_TYPES' : (('STD','Standard'), ('EGD', 'Egg Drop'),('WRKT','Water Rocket'),('GCAR','Gravity Car'),('DMUD','Drilling Mud'), ('SKY','Skyscraper'),
+                     ('PBR','Pasta Bridge'),('CCAR','Chemical Car'),('WLFT','Weight Lifting'),('ICT','Indoor Catapults'),)
 }
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
