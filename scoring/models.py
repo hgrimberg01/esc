@@ -390,7 +390,7 @@ class IndoorCatapultsScore(Score):
             min_possible = min_score_query['team_score__min']
         
         # apply score for team
-        self.score = team_score
+        self.score = self.team_score
         
         # normalize
         dif_high_low = max_possible - min_possible
