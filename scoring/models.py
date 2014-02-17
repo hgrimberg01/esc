@@ -147,7 +147,7 @@ class SkyscraperScore(Score):
             max_possible = max_score_query['score__max']
             
         min_score_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('score'))
-        if min_score_query['tower_score__min'] == None or min_score_query['score__min'] == max_possible:
+        if min_score_query['score__min'] == None or min_score_query['score__min'] == max_possible:
             min_possible = self.score
         elif self.sore < min_score_query['score__min']:
             min_possible = self.score
