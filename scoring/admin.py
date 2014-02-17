@@ -357,7 +357,7 @@ class EggDropScoreAdmin(ScoreAdmin):
 def RetabulateSkyscraperScores(request):
     skyscraper_scores = SkyscraperScore.objects.all()
     
-    for skycsraper_score in skyscraper_scores:
+    for skyscraper_score in skyscraper_scores:
         skyscraper_score.save()
     return HttpResponseRedirect('/admin/')
 RetabulateSkyscraperScores = staff_member_required(RetabulateSkyscraperScores)
