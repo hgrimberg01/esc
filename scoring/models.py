@@ -3,14 +3,14 @@ ESC Scoring App, 2014
 The following competitions fit under the Standard Scoring scheme:
     AIAA, Archery; EcoHawks, Battery Powered Car; EWB, Water Finding;
     SEDS, Water Rocket; KU Robotics, Mindstorms; ASME, Trebuchet;
-    JMS, Gravity Car; Concrete Canoe, Sailing
+    ASME, Rube Goldberg; Concrete Canoe, Sailing;  USGBC, LEED DEsign
     
 The following require custom scoring schemes:
     ASCE/Steel Bridge, Pasta Bridge; AEI, Skyscraper; SPE, Drilling;
-    Sigma Gamma Tau, Egg Drop
+    Sigma Gamma Tau, Egg Drop; AIChe, Chemical Car; JMS, Gravity Car 
     
 ???
-    AIChe, Chemical Car; PESO, Weight Lifting; USGBC, LEED DEsign
+    PESO, Weight Lifting; SHPE, Indoor Catapults
 """
 from django.db import models
 from django.db.models import Max
@@ -68,34 +68,31 @@ Pasta Bridge divides the weight of the material supported by the
 weight of the bridge, highest score wins
 """
 class PastaBridgeScore(Score):
-    material_weight = models.FloatField()
-    bridge_weight = models.FloatField()
-    # Score is computed by dividing weight supported by bridge weight
-    materials_quotient = material_weight / bridge_weight
+    score_quotient = models.FloatField()
     def save(self, force_inser=False, force_update=False):
         max_possible = self.event.max_score
         min_possible = self.event.min_score
         
         # find max score
-        max_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('materials_quotient'))
-        if max_quotient_query['materials_quotient__max'] == None:
-            max_possible = self.materials_quotient
-        elif self.materials_quotient > max_quotient_query['materials_quotient']:
-            max_possible = self.max_quotient_query['materials_quotient__max']
+        max_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('score_quotient'))
+        if max_quotient_query['score_quotient__max'] == None:
+            max_possible = self.score_quotient
+        elif self.materials_quotient > max_quotient_query['score_quotient']:
+            max_possible = self.max_quotient_query['score_quotient__max']
         else:
-            max_possible = max_quotient_query['materials_quotient__max']
+            max_possible = max_quotient_query['mcore_quotient__max']
         
         # find min score
-        min_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('materials_quotient'))
-        if min_quotient_query['materials_quotient__min'] == None or min_quotient_query['materials_quotient__min']:
+        min_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('score_quotient'))
+        if min_quotient_query['score_quotient__min'] == None or min_quotient_query['score_quotient__min']:
             min_possible = 0.0
-        elif min_quotient_query['materials_quotient__min'] > self.materials_quotient:
+        elif min_quotient_query['score_quotient__min'] > self.score_quotient:
             min_possible = self.materials_quotient
         else:
-            min_possible = min_quotient_query['materials_quotient__min']
+            min_possible = min_quotient_query['score_quotient__min']
         
         # apply score for team
-        self.score = materials_quotient
+        self.score = score_quotient
         
         # normalize
         dif_high_low = max_possible - min_possible
@@ -190,6 +187,162 @@ class EggDropScore(Score):
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(EggDropScore, self).save(force_insert, force_update)   
+        
+class DrillingMudScore(Score):
+    ingredients_documented = models.BooleanField()
+    number_of_ingredients = models.IntegerField()
+    price_documented = models.BooleanField()
+    price_per_liter = models.FloatField()
+    slide_time = models.FloatField()
+    price_time = models.FloatField(editable=False)
+    cuttings_left = models.IntegerField()
+    group_poster = models.BooleanField()
+    def save(self, force_insert=False, force_update=False): 
+        
+        base_score = 25.0
+        ingredient_score = 0.0
+        ingredient_price_score = 0.0
+        ingredient_doc_score = 0.0
+        poster_score = 0.0
+        # Set flag to indicate ingredients are NOT documented
+        if not self.ingredients_documented:
+            ingredient_doc_score = 1.0
+        # Set flag to indicate price is NOT documented    
+        if not self.price_documented:
+            ingredient_price_score = 1.0
+        # If group HAS a poster, subtract 5 points.    
+        if self.group_poster:
+            poster_score = -5.0
+        if self.number_of_ingredients < 3:
+            ingredient_score = 4.0
+        elif self.number_of_ingredients > 3:
+            ingredient_score = (self.number_of_ingredients - 3) * 0.5      
+        # Price * Time    
+        time_price = self.price_per_liter * self.slide_time
+        self.price_time = time_price
+        
+        rank = DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, price_time__gt=time_price).count()
+        if rank == 0 or rank == None:
+            rank = 1.0
+            
+        rank_score = rank - 1.0
+
+        final_score = 25 + ingredient_doc_score + ingredient_score + ingredient_price_score + rank_score + self.cuttings_left + poster_score
+        self.score = final_score
+        
+        max_possible = self.event.max_score
+        min_possible = self.event.min_score
+        
+        dif_high_low = min_possible - max_possible
+        dif_score_low = min_possible - self.score
+        self.normalized_score = round((dif_score_low / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        super(DrillingMudScore, self).save(force_insert, force_update)
+"""
+Chemical Car is based purely on times, ties are broken by lower weights
+"""
+class ChemicalCarScore(Score):
+    time = models.FloatField(help_text='Time for car')
+    weight = models.FloatField(help_text='Weight for car')
+    def save(self, force_insert=False, force_update=False):
+        max_time_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Max('time'))
+        min_time_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Min('time'))
+        max_weight_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Max('weight'))
+        min_weight_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Min('weight'))
+ 
+"""
+Weight lifting applies the following formula:
+(Score)=[(Predicted force)-(Experimental force)] * (number of gears)
+Smaller scores are better
+"""
+class WeightLiftingScores(Score):
+    team_score = models.FloatField()
+    def save(self, force_insert=False, force_update=False):
+        max_possible = self.event.max_score
+        min_possible = self.event.min_score
+        
+        max_score_query = WeightLiftingScores.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('team_score'))
+        if max_score_query['team_score__max'] == None:
+            max_possible = self.team_score
+        elif max_score_query['team_score__max'] < self.team_score:
+            max_possible = self.team_score
+        else:
+            max_possible = max_score_query['team_score__max']
+        
+        min_score_query = WeightLiftingScores.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('team_score'))
+        if min_score_query['team_score__min'] == None or min_score_query['team_score__min'] == self.team_score:
+            min_possible = 0.0
+        elif min_score_query['team_score__min'] > self.team_score:
+            min_possible = self.team_score
+        else:
+            min_possible = min_score_query['team_score__min']
+        
+        self.score = team_score
+        
+        # Lower scores are normalized to highest
+        dif_high_low = max_possible - min_possible
+        dif_score_high = min_possible + self.score
+       
+        self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        super(GravityCarScore, self).save(force_insert, force_update)
+        
+class GravityCarScore(Score):
+    time = models.FloatField(help_text='Time for car')
+    weight = models.FloatField(help_text='Weight for car')
+    def save(self, force_insert=False, force_update=False):
+       max_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('time'))
+       min_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('time'))
+       max_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight'))
+       min_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('weight'))
+       
+       if(max_time_query['time__max'] == None):
+           max_time = self.time
+       elif(max_time_query['time__max'] < self.time):
+           max_time = self.time
+       else:
+          max_time = max_time_query['time__max']
+          
+       if(min_time_query['time__min'] == None or min_time_query['time__min'] == max_time ):
+           min_time = 0.0
+       elif(min_time_query['time__min'] > self.time):
+           min_time = self.time
+       else:
+          min_time = min_time_query['time__min']
+          
+       if(max_weight_query['weight__max'] == None):
+           max_weight = self.weight
+       elif(max_weight_query['weight__max'] < self.weight):
+           max_weight = self.weight
+       else:
+          max_weight = max_weight_query['weight__max']
+          
+       if(min_weight_query['weight__min'] == None or min_weight_query['weight__min'] == max_weight ):
+           min_weight = 0.0
+       elif(min_weight_query['weight__min'] > self.weight):
+           min_weight = self.time
+       else:
+          min_weight = min_weight_query['weight__min']  
+                            
+       a = 50.0 * (max_time - self.time) / (max_time - min_time)
+       b = 50.0 * (max_weight - self.weight) / (max_weight - min_weight)
+       print a+b
+       print max_time
+       print self.time
+       self.score = a + b
+       
+       max_possible = self.event.max_score
+       min_possible = self.event.min_score
+       
+       dif_high_low = max_possible - min_possible
+       dif_score_high = max_possible - self.score
+       
+       self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+       super(GravityCarScore, self).save(force_insert, force_update)
+       
+class PreRegistration(models.Model):
+    teams = models.ForeignKey(Team)
+    event = models.ForeignKey(Event)
+    def __unicode__(self):
+        return self.teams.name + ' for ' + self.event.name
 
 """
 # No longer included
@@ -248,112 +401,3 @@ class VolcanoScore(Score):
         
         super(VolcanoScore, self).save(force_insert, force_update)
 """
-        
-class DrillingMudScore(Score):
-    ingredients_documented = models.BooleanField()
-    number_of_ingredients = models.IntegerField()
-    price_documented = models.BooleanField()
-    price_per_liter = models.FloatField()
-    slide_time = models.FloatField()
-    price_time = models.FloatField(editable=False)
-    cuttings_left = models.IntegerField()
-    group_poster = models.BooleanField()
-    def save(self, force_insert=False, force_update=False): 
-        
-        base_score = 25.0
-        ingredient_score = 0.0
-        ingredient_price_score = 0.0
-        ingredient_doc_score = 0.0
-        poster_score = 0.0
-        # Set flag to indicate ingredients are NOT documented
-        if not self.ingredients_documented:
-            ingredient_doc_score = 1.0
-        # Set flag to indicate price is NOT documented    
-        if not self.price_documented:
-            ingredient_price_score = 1.0
-        # If group HAS a poster, subtract 5 points.    
-        if self.group_poster:
-            poster_score = -5.0
-        if self.number_of_ingredients < 3:
-            ingredient_score = 4.0
-        elif self.number_of_ingredients > 3:
-            ingredient_score = (self.number_of_ingredients - 3) * 0.5      
-        # Price * Time    
-        time_price = self.price_per_liter * self.slide_time
-        self.price_time = time_price
-        
-        rank = DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - DrillingMudScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, price_time__gt=time_price).count()
-        if rank == 0 or rank == None:
-            rank = 1.0
-            
-        rank_score = rank - 1.0
-
-        final_score = 25 + ingredient_doc_score + ingredient_score + ingredient_price_score + rank_score + self.cuttings_left + poster_score
-        self.score = final_score
-        
-        max_possible = self.event.max_score
-        min_possible = self.event.min_score
-        
-        dif_high_low = min_possible - max_possible
-        dif_score_low = min_possible - self.score
-        self.normalized_score = round((dif_score_low / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
-        super(DrillingMudScore, self).save(force_insert, force_update)
-            
-class PreRegistration(models.Model):
-    teams = models.ForeignKey(Team)
-    event = models.ForeignKey(Event)
-    def __unicode__(self):
-        return self.teams.name + ' for ' + self.event.name
-    
-class GravityCarScore(Score):
-    time = models.FloatField(help_text='Time for car')
-    weight = models.FloatField(help_text='Weight for car')
-    def save(self, force_insert=False, force_update=False):
-       max_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('time'))
-       min_time_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('time'))
-       max_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight'))
-       min_weight_query = GravityCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('weight'))
-       print max_time_query
-       if(max_time_query['time__max'] == None):
-           max_time = self.time
-       elif(max_time_query['time__max'] < self.time):
-           max_time = self.time
-       else:
-          max_time = max_time_query['time__max']
-          
-       if(min_time_query['time__min'] == None or min_time_query['time__min'] == max_time ):
-           min_time = 0.0
-       elif(min_time_query['time__min'] > self.time):
-           min_time = self.time
-       else:
-          min_time = min_time_query['time__min']
-          
-       if(max_weight_query['weight__max'] == None):
-           max_weight = self.weight
-       elif(max_weight_query['weight__max'] < self.weight):
-           max_weight = self.weight
-       else:
-          max_weight = max_weight_query['weight__max']
-          
-       if(min_weight_query['weight__min'] == None or min_weight_query['weight__min'] == max_weight ):
-           min_weight = 0.0
-       elif(min_weight_query['weight__min'] > self.weight):
-           min_weight = self.time
-       else:
-          min_weight = min_weight_query['weight__min']  
-                            
-       a = 50.0 * (max_time - self.time) / (max_time - min_time)
-       b = 50.0 * (max_weight - self.weight) / (max_weight - min_weight)
-       print a+b
-       print max_time
-       print self.time
-       self.score = a + b
-       
-       max_possible = self.event.max_score
-       min_possible = self.event.min_score
-       
-       dif_high_low = max_possible - min_possible
-       dif_score_high = max_possible - self.score
-       
-       self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
-       super(GravityCarScore, self).save(force_insert, force_update)
