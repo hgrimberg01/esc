@@ -91,7 +91,7 @@ class PastaBridgeScore(Score):
             min_possible = min_quotient_query['score_quotient__min']
         
         # apply score for team
-        self.score = score_quotient
+        self.score = self.score_quotient
         
         # normalize
         dif_high_low = max_possible - min_possible
@@ -135,7 +135,7 @@ class SkyscraperScore(Score):
         else:
             min_weight = min_weight_query['tower_weight__min']
         
-        self.score = (self.tower_height / max_height) + (tower_weight / max_weight) + (min_weight / self.tower_weight)
+        self.score = (self.tower_height / max_height) + (self.weight_supported / max_weight) + (min_weight / self.tower_weight)
         
         dif_high_low = max_possible - min_possible
         dif_score_high = max_possible - self.score
