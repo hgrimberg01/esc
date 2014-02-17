@@ -112,7 +112,7 @@ class SkyscraperScore(Score):
         max_possible = self.event.max_score
         min_possible = self.event.min_score
         
-        max_height_query = SkyScraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('tower_height'))
+        max_height_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('tower_height'))
         if max_height_query['tower_height__max'] == None:
             max_height = self.tower_height
         elif self.tower_height > max_height_query['tower_height__max']:
@@ -120,7 +120,7 @@ class SkyscraperScore(Score):
         else:
             max_height = max_height_query['tower_height__max']
         
-        max_weight_query = SkyScraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight_supported'))
+        max_weight_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight_supported'))
         if max_weight_query['weight_supported__max'] == None:
             max_weight = self.weight_supported
         elif self.weight_supported > max_weight_query['weight_supported']:
@@ -128,7 +128,7 @@ class SkyscraperScore(Score):
         else:
             max_weight = max_weight_query['weight_supported__max']
             
-        min_weight_query = SkyScraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('tower_weight'))
+        min_weight_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('tower_weight'))
         if min_weight_query['tower_weight__min'] == None or min_weight_query['tower_weight__min'] == max_weight:
             min_weight = self.tower_weight
         elif self.tower_weight < min_weight_query['tower_weight__min']:
@@ -141,6 +141,7 @@ class SkyscraperScore(Score):
         dif_high_low = max_possible - min_possible
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        print self.team + ' Score:  ' + self.normalized_score
         super(SkyscraperScore, self).save(force_insert, force_update)
 
 
