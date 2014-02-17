@@ -123,7 +123,7 @@ class SkyscraperScore(Score):
         max_weight_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('weight_supported'))
         if max_weight_query['weight_supported__max'] == None:
             max_weight = self.weight_supported
-        elif self.weight_supported > max_weight_query['weight_supported']:
+        elif self.weight_supported > max_weight_query['weight_supported__max']:
             max_weight = self.weight_supported
         else:
             max_weight = max_weight_query['weight_supported__max']
