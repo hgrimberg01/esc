@@ -115,7 +115,7 @@ def GetParticipantLabels(request):
 
             for team in participant['teams']:
                 team_string = team_string + '\n' + team['team_name'] + ' : ' + str(team['team_id'])
-                for event_team in PreRegistration.objects.filter(teams__name=team['team_name']):
+                for event_team in PreRegistration.objects.filter(teams__id=team['team_id']):
                     team_string = team_string + '\n' + event_team.event.name
                 team_string =  team_string + '\n*******************'
 
