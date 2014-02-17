@@ -267,7 +267,7 @@ class ChemicalCarScore(Score):
         self.score = final_rank
         
         num_compet = max_possible
-        self.normalized_score = round(((num_compet - final_rank) / num_compet) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        self.normalized_score = round(((num_compet - final_rank + 1) / num_compet) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(ChemicalCarScore, self).save(force_insert, force_update)
 
       
