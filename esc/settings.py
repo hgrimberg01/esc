@@ -13,7 +13,7 @@ MANAGERS = ADMINS
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
-if(Debug):
+if(DEBUG):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -207,4 +207,4 @@ EMAIL_HOST_PASSWORD = 'x9R7hhwrLsaccd'
 EMAIL_HOST_USER ='score-system@outlook.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_SUBJECT_PREFIX = '[EXPO]
+EMAIL_SUBJECT_PREFIX = '[EXPO]'
