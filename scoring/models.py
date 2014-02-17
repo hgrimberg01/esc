@@ -367,7 +367,7 @@ Indoor Catapults
 """
 class IndoorCatapultsScore(Score):
     team_score = models.FloatField()
-    def save(self, force_inser=False, force_update=False):
+    def save(self, force_insert=False, force_update=False):
         max_possible = self.event.max_score
         min_possible = self.event.min_score
         
