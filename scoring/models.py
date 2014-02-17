@@ -7,11 +7,10 @@ The following competitions fit under the Standard Scoring scheme:
     
 The following require custom scoring schemes:
     ASCE/Steel Bridge, Pasta Bridge; AEI, Skyscraper; SPE, Drilling;
-    Sigma Gamma Tau, Egg Drop; AIChe, Chemical Car; JMS, Gravity Car 
-    
-???
+    Sigma Gamma Tau, Egg Drop; AIChe, Chemical Car; JMS, Gravity Car;
     PESO, Weight Lifting; SHPE, Indoor Catapults
 """
+
 from django.db import models
 from django.db.models import Max
 from django.db.models import Min
@@ -77,17 +76,17 @@ class PastaBridgeScore(Score):
         max_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('score_quotient'))
         if max_quotient_query['score_quotient__max'] == None:
             max_possible = self.score_quotient
-        elif self.materials_quotient > max_quotient_query['score_quotient']:
-            max_possible = self.max_quotient_query['score_quotient__max']
+        elif self.score_quotient > max_quotient_query['score_quotient__max']:
+            max_possible = max_quotient_query['score_quotient__max']
         else:
-            max_possible = max_quotient_query['mcore_quotient__max']
+            max_possible = max_quotient_query['score_quotient__max']
         
         # find min score
         min_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('score_quotient'))
         if min_quotient_query['score_quotient__min'] == None or min_quotient_query['score_quotient__min']:
             min_possible = 0.0
         elif min_quotient_query['score_quotient__min'] > self.score_quotient:
-            min_possible = self.materials_quotient
+            min_possible = self.score_quotient
         else:
             min_possible = min_quotient_query['score_quotient__min']
         
@@ -249,6 +248,7 @@ class ChemicalCarScore(Score):
         max_weight_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Max('weight'))
         min_weight_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Min('weight'))
  
+        
 """
 Weight lifting applies the following formula:
 (Score)=[(Predicted force)-(Experimental force)] * (number of gears)
@@ -279,7 +279,7 @@ class WeightLiftingScores(Score):
         self.score = team_score
         
         # Lower scores are normalized to highest
-        dif_high_low = max_possible - min_possible
+        dif_high_low = min_possible + max_possible
         dif_score_high = min_possible + self.score
        
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
@@ -337,7 +337,43 @@ class GravityCarScore(Score):
        
        self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
        super(GravityCarScore, self).save(force_insert, force_update)
-       
+
+"""
+Indoor Catapults
+"""
+class IndoorCatapultsScore(Score):
+    team_score = models.FloatField()
+    def save(self, force_inser=False, force_update=False):
+        max_possible = self.event.max_score
+        min_possible = self.event.min_score
+        
+        # find max score
+        max_score_query = IndoorCatapultsScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('team_score'))
+        if max_score_query['team_score__max'] == None:
+            max_possible = self.team_score
+        elif self.team_score > max_score_query['team_score__max']:
+            max_possible = max_score_query['team_score__max']
+        else:
+            max_possible = max_score_query['team_score__max']
+        
+        # find min score
+        min_score_query = IndoorCatapultsScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('team_score'))
+        if min_score_query['team_score__min'] == None or min_score_query['team_score__min']:
+            min_possible = 0.0
+        elif min_score_query['team_score__min'] > self.team_score:
+            min_possible = self.team_score
+        else:
+            min_possible = min_score_query['team_score__min']
+        
+        # apply score for team
+        self.score = team_score
+        
+        # normalize
+        dif_high_low = max_possible - min_possible
+        dif_score_high = max_possible - self.score
+        self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        super(IndoorCatapultsScore, self).save(force_insert, force_update) 
+
 class PreRegistration(models.Model):
     teams = models.ForeignKey(Team)
     event = models.ForeignKey(Event)
