@@ -264,7 +264,7 @@ class ChemicalCarScore(Score):
         
         # Add 1 to make automated score reporting give a sensible rank, but keep ranking based on zero for normalization 
         final_rank = time_rank + weight_rank
-        self.score = final_rank
+        self.score = final_rank + 1
         
         num_compet = max_possible
         self.normalized_score = round(((num_compet - final_rank) / num_compet) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
