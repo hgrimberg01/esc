@@ -1,5 +1,5 @@
 from django.contrib import admin
-from scoring.models import Event, Score, EggDropScore, PreRegistration, DrillingMudScore, GravityCarScore
+from scoring.models import Event, Score, EggDropScore, PreRegistration, DrillingMudScore, GravityCarScore, SkyscraperScore, PastaBridgeScore, ChemicalCarScore, WeightLiftingScore, IndoorCatapultsScore
 from registration.models import Team
 from django import forms
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
