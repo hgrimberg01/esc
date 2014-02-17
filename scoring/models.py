@@ -1,3 +1,11 @@
+"""
+ESC Scoring App, 2014
+The following competitions fit under the Standard Scoring scheme:
+    AIAA; EcoHawks; EWB; SEDS; KU Robotics; ASME; Trebuchet
+
+The following require custom scoring schemes:
+    ASCE/Steel Bridge, Pasta Bridge; AEI, Skyscraper; SPE, Drilling
+"""
 from django.db import models
 from django.db.models import Max
 from django.db.models import Min
@@ -16,9 +24,6 @@ class Event(models.Model):
     owners = models.ManyToManyField(Group)
     def __unicode__(self):
         return self.name
-    
-
-
 
 class Score(models.Model):
     event = models.ForeignKey(Event, help_text='Select an Event')
@@ -98,7 +103,8 @@ class EggDropScore(Score):
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(EggDropScore, self).save(force_insert, force_update)   
 
-
+"""
+# No longer included
 class VolcanoScore(Score):
     time = models.FloatField()
     distance = models.FloatField()
@@ -153,6 +159,7 @@ class VolcanoScore(Score):
         
         
         super(VolcanoScore, self).save(force_insert, force_update)
+"""
         
 class DrillingMudScore(Score):
     ingredients_documented = models.BooleanField()
@@ -246,9 +253,7 @@ class GravityCarScore(Score):
            min_weight = self.time
        else:
           min_weight = min_weight_query['weight__min']  
-           
-           
-       
+                            
        a = 50.0 * (max_time - self.time) / (max_time - min_time)
        b = 50.0 * (max_weight - self.weight) / (max_weight - min_weight)
        print a+b
