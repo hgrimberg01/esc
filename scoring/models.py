@@ -142,6 +142,7 @@ class SkyscraperScore(Score):
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(SkyscraperScore, self).save(force_insert, force_update)
 
+
 class EggDropScore(Score):
     egg_safety_possible_scores = ((1.0, 'Intact'), (0.5, 'Broken'))
     flight_time = models.FloatField()
@@ -186,6 +187,7 @@ class EggDropScore(Score):
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(EggDropScore, self).save(force_insert, force_update)   
+
         
 class DrillingMudScore(Score):
     ingredients_documented = models.BooleanField()
@@ -236,6 +238,8 @@ class DrillingMudScore(Score):
         dif_score_low = min_possible - self.score
         self.normalized_score = round((dif_score_low / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(DrillingMudScore, self).save(force_insert, force_update)
+
+
 """
 Chemical Car is based purely on times, ties are broken by lower weights
 """
@@ -243,10 +247,26 @@ class ChemicalCarScore(Score):
     time = models.FloatField(help_text='Time for car')
     weight = models.FloatField(help_text='Weight for car')
     def save(self, force_insert=False, force_update=False):
-        max_time_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Max('time'))
-        min_time_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Min('time'))
-        max_weight_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Max('weight'))
-        min_weight_query = ChemicalCarScore.objects.exclude(disqlualified=True).filter(team__division=self.team.division).aggregate(Min('weight'))
+        # Highest rank is last place, last place is the number of entrants with scores
+        max_possible = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count()
+        # Lowest is the best rank, in a competition, first place is the min_possible and best rank
+        min_possible = 0.0
+        
+        # Find the number of cars that have better times
+        time_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time__lt=self.time).count()
+        if time_rank == 0 or time_rank == None:
+            time_rank = 0.0
+        # Find the number of cars that have the same time, but better weights
+        weight_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time, weight__lt=self.weight).count()
+        if weight_rank == 0 or weight_rank == None:
+            weight_weight = 0.0
+        
+        final_rank = time_rank + weight_rank
+        self.score = final_rank + 1
+        
+        num_compet = max_possible
+        self.normalized_score = round(((num_compet - final_rank) / num_compet) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settlings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        super(ChemicalCarScore, self).save(force_insert, force_update)
  
         
 """
@@ -284,6 +304,7 @@ class WeightLiftingScores(Score):
        
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(GravityCarScore, self).save(force_insert, force_update)
+
         
 class GravityCarScore(Score):
     time = models.FloatField(help_text='Time for car')
@@ -338,6 +359,7 @@ class GravityCarScore(Score):
        self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
        super(GravityCarScore, self).save(force_insert, force_update)
 
+
 """
 Indoor Catapults
 """
@@ -373,6 +395,7 @@ class IndoorCatapultsScore(Score):
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(IndoorCatapultsScore, self).save(force_insert, force_update) 
+
 
 class PreRegistration(models.Model):
     teams = models.ForeignKey(Team)
