@@ -6,6 +6,7 @@ import os
 
 ADMINS = (
      ('Howard Grimberg', 'hgrimberg@ku.edu'),
+     ('Aleksander Eskilson', 'aeskilson@ku.edu')
 )
 
 MANAGERS = ADMINS
