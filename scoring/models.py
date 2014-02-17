@@ -255,11 +255,11 @@ class ChemicalCarScore(Score):
         min_possible = 0.0
         
         # Find the number of cars that have better times
-        time_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time__lt=self.time).count() + 1
+        time_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time__gt=self.time).count()
         if time_rank == 0 or time_rank == None:
             time_rank = 0.0
         # Find the number of cars that have the same time, but better weights
-        weight_rank = (ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time, weight__lt=self.weight).count()) / 1000.0
+        weight_rank = (ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time, weight__gt=self.weight).count()) / 1000.0
         if weight_rank == 0 or weight_rank == None:
             weight_weight = 0.0
         
