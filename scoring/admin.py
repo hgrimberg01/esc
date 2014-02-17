@@ -399,4 +399,6 @@ class GravityCarScoreAdmin(ScoreAdmin):
 admin.site.register(DrillingMudScore, DrillingMudAdmin)
 admin.site.register(EggDropScore, EggDropScoreAdmin)
 admin.site.register(GravityCarScore, GravityCarScoreAdmin)
+"""
 admin.site.register(VolcanoScore, VolcanoScoreAdmin)
+"""
