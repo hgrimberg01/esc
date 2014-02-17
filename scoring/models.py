@@ -253,7 +253,7 @@ class ChemicalCarScore(Score):
             max_possible = 1
         
         # Find the number of cars that have better times
-        time_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time__gt=self.time).count()
+        time_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time__gte=self.time).count()
         if time_rank == 0 or time_rank == None:
             time_rank = 0.0
         
