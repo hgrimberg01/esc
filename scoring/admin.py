@@ -424,6 +424,7 @@ class PastaBridgeScoreAdmin(ScoreAdmin):
     pass
 
 
+# Chemical Car
 def RetabulateChemicalCarScores(request):
     chemical_car_scores = ChemicalCarScore.objects.all()
     
@@ -458,7 +459,7 @@ class ChemicalCarScoreAdmin(ScoreAdmin):
         return form
     pass
 
-
+# Weight Lifting
 def RetabulateWeightLiftingScores(request):
     weight_lifting_scores = WeightLiftingScore.objects.all()
     
@@ -493,7 +494,7 @@ class WeightLiftingScoreAdmin(ScoreAdmin):
         return form
     pass
 
-
+# Indoor Catapults
 def RetabulateIndoorCatapultsScores(request):
     indoor_catapults_scores = IndoorCatapultsScore.objects.all()
     
@@ -527,7 +528,6 @@ class IndoorCatapultsScoreAdmin(ScoreAdmin):
 
         return form
     pass
-
 
 
 """
@@ -567,8 +567,13 @@ class VolcanoScoreAdmin(ScoreAdmin):
 """
 
 admin.site.register(DrillingMudScore, DrillingMudAdmin)
-admin.site.register(EggDropScore, EggDropScoreAdmin)
 admin.site.register(GravityCarScore, GravityCarScoreAdmin)
+admin.site.register(EggDropScore, EggDropScoreAdmin)
+admin.site.register(SkyscraperScore, SkyscraperScoreAdmin)
+admin.site.register(PastaBridgeScore, PastaBridgeScoreAdmin)
+admin.site.register(ChemicalCarScore, ChemicalCarScoreAdmin)
+admin.site.register(WeightLiftingScore, WeightLiftingScoreAdmin)
+admin.site.register(IndoorCatapultsScore, IndoorCatapultsScoreAdmin)
 """
 admin.site.register(VolcanoScore, VolcanoScoreAdmin)
 """
