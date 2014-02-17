@@ -1,10 +1,16 @@
 """
 ESC Scoring App, 2014
 The following competitions fit under the Standard Scoring scheme:
-    AIAA; EcoHawks; EWB; SEDS; KU Robotics; ASME; Trebuchet
-
+    AIAA, Archery; EcoHawks, Battery Powered Car; EWB, Water Finding;
+    SEDS, Water Rocket; KU Robotics, Mindstorms; ASME, Trebuchet;
+    JMS, Gravity Car; Concrete Canoe, Sailing
+    
 The following require custom scoring schemes:
-    ASCE/Steel Bridge, Pasta Bridge; AEI, Skyscraper; SPE, Drilling
+    ASCE/Steel Bridge, Pasta Bridge; AEI, Skyscraper; SPE, Drilling;
+    Sigma Gamma Tau, Egg Drop
+    
+???
+    AIChe, Chemical Car; PESO, Weight Lifting; USGBC, LEED DEsign
 """
 from django.db import models
 from django.db.models import Max
@@ -56,7 +62,42 @@ class Score(models.Model):
   
     def __unicode__(self):
             return self.event.name + " for " + self.team.name + " @ " + str(self.dateTimeStamp) 
- 
+
+"""
+Pasta Bridge divides the weight of the material supported by the 
+weight of the bridge, highest score wins
+"""
+class PastaBridgeScore(Score):
+    material_weight = models.FloatField()
+    bridge_weight = models.FloatField()
+    # Score is computed by dividing weight supported by bridge weight
+    materials_quotient = material_weight / bridge_weight
+    def save(self, force_inser=False, force_update=False):
+        max_possible = self.event.max_score
+        min_possible = self.event.min_score
+        
+        max_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('materials_quotient'))
+        if max_quotient_query['materials_quotient__max'] == None:
+            max_possible = self.materials_quotient
+        elif self.materials_quotient > max_quotient_query['materials_quotient']:
+            max_possible = self.max_quotient_query['materials_quotient__max']
+        else:
+            max_possible = max_quotient_query['materials_quotient__max']
+        
+        min_quotient_query = PastaBridgeScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Min('materials_quotient'))
+        if min_quotient_query['materials_quotient__min'] == None or min_quotient_query['materials_quotient__min']:
+            min_possible = 0.0
+        elif min_quotient_query['materials_quotient__min'] > self.materials_quotient:
+            min_possible = self.materials_quotient
+        else:
+            min_possible = min_quotient_query['materials_quotient__min']
+            
+        dif_high_low = max_possible - min_possible
+        dif_score_high = max_possible - self.score
+        self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
+        super(EggDropScore, self).save(force_insert, force_update) 
+            
+        
 class EggDropScore(Score):
     egg_safety_possible_scores = ((1.0, 'Intact'), (0.5, 'Broken'))
     flight_time = models.FloatField()
@@ -66,8 +107,7 @@ class EggDropScore(Score):
     def save(self, force_insert=False, force_update=False):
         max_possible = self.event.max_score
         min_possible = self.event.min_score
-       
-        
+               
         max_flight_time_query = EggDropScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('flight_time'))
         if max_flight_time_query['flight_time__max'] == None:
             max_flight_time = self.flight_time
