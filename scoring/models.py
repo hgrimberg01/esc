@@ -261,6 +261,7 @@ class ChemicalCarScore(Score):
         if weight_rank == 0 or weight_rank == None:
             weight_weight = 0.0
         
+        Add 1 to make automated score reporting give a sensible rank, but keep ranking based on zero for normalization 
         final_rank = time_rank + weight_rank
         self.score = final_rank + 1
         
