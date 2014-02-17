@@ -141,7 +141,7 @@ class SkyscraperScore(Score):
         dif_high_low = max_possible - min_possible
         dif_score_high = max_possible - self.score
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
-        print str(self.team) + ' Score:  ' + self.normalized_score
+        print str(self.team) + ' Score:  ' + str(self.normalized_score)
         super(SkyscraperScore, self).save(force_insert, force_update)
 
 
