@@ -248,9 +248,9 @@ class ChemicalCarScore(Score):
     weight = models.FloatField(help_text='Weight for car')
     def save(self, force_insert=False, force_update=False):
         # Highest rank is last place, last place is the number of entrants with scores
-        max_possible = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count()
-        if max_possible == 0 or max_possible == None:
-            max_possible = 1
+        max_possible = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).count() + 1
+        # if max_possible == 0 or max_possible == None:
+        #     max_possible = 1
         # Lowest is the best rank, in a competition, first place is the min_possible and best rank
         min_possible = 0.0
         
