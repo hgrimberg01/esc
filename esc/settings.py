@@ -13,7 +13,7 @@ MANAGERS = ADMINS
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
-if(Debug):
+if(DEBUG):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
