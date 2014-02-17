@@ -259,11 +259,11 @@ class ChemicalCarScore(Score):
         if time_rank == 0 or time_rank == None:
             time_rank = 0.0
         # Find the number of cars that have the same time, but better weights
-        weight_rank = ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time, weight__lt=self.weight).count()
+        weight_rank = (ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time).count() - ChemicalCarScore.objects.exclude(disqualified=True).filter(team__division=self.team.division, time=self.time, weight__lt=self.weight).count()) / 1000
         if weight_rank == 0 or weight_rank == None:
             weight_weight = 0.0
         
-       # Add 1 to make automated score reporting give a sensible rank, but keep ranking based on zero for normalization 
+        # Add 1 to make automated score reporting give a sensible rank, but keep ranking based on zero for normalization 
         final_rank = time_rank + weight_rank
         self.score = final_rank + 1
         
