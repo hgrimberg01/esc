@@ -141,7 +141,7 @@ class SkyscraperScore(Score):
         max_score_query = SkyscraperScore.objects.exclude(disqualified=True).filter(team__division=self.team.division).aggregate(Max('score'))
         if max_score_query['score__max'] == None:
             max_possible = self.score
-        elif self.weight_supported > max_weight_query['score__max']:
+        elif self.score > max_score_query['score__max']:
             max_possible = self.score
         else:
             max_possible = max_score_query['score__max']
