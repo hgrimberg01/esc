@@ -300,9 +300,9 @@ class WeightLiftingScores(Score):
         self.score = team_score
         
         # Lower scores are normalized to highest
-        dif_high_low = min_possible + max_possible
-        dif_score_high = min_possible + self.score
-       
+        dif_high_low = max_possible - min_possible
+        dif_score_high = self.score - min_possible
+        
         self.normalized_score = settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'] - round((dif_score_high / dif_high_low) * settings.GLOBAL_SETTINGS['MAX_NORMAL_SCORE'], settings.GLOBAL_SETTINGS['DECIMAL_PLACES_TO_ROUND'])
         super(GravityCarScore, self).save(force_insert, force_update)
 
