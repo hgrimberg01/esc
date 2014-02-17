@@ -12,16 +12,30 @@ MANAGERS = ADMINS
 
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/tmp/db.file',  # Or path to database file if using sqlite3.
-        'USER': '',  # Not used with sqlite3.
-        'PASSWORD': '',  # Not used with sqlite3.
-        'HOST': '',  # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',  # Set to empty string for default. Not used with sqlite3.
+
+if(Debug):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': '/tmp/db.file',  # Or path to database file if using sqlite3.
+            'USER': 'expo_dev',  # Not used with sqlite3.
+            'PASSWORD': '',  # Not used with sqlite3.
+            'HOST': '',  # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '',  # Set to empty string for default. Not used with sqlite3.
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'expo_dev',  # Or path to database file if using sqlite3.
+            'USER': 'expo_dev',  # Not used with sqlite3.
+            'PASSWORD': 'b66f7X33v4v17w8XkYtA7s',  # Not used with sqlite3.
+            'HOST': '/var/run/mysqld/mysqld.sock',  # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '3306',  # Set to empty string for default. Not used with sqlite3.
+        }
+    }
+
 
 
 # Local time zone for this installation. Choices can be found here:
@@ -186,11 +200,11 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'box545.bluehost.com'
-DEFAULT_FROM_EMAIL='score-system@kuexpo.cloudapp.net'
-EMAIL_HOST_PASSWORD = 'x9R7hhwrLsaccdWBEu5SkCw4'
+EMAIL_HOST = 'smtp-mail.outlook.com'
+DEFAULT_FROM_EMAIL='score-system@outlook.com'
+EMAIL_HOST_PASSWORD = 'x9R7hhwrLsaccd'
 
-EMAIL_HOST_USER ='scoring-system+jayhawkmotorsports.com'
-EMAIL_PORT = 26
-EMAIL_USE_TLS = False
-EMAIL_SUBJECT_PREFIX = '[EXPO]'
+EMAIL_HOST_USER ='score-system@outlook.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_SUBJECT_PREFIX = '[EXPO]
