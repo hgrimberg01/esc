@@ -114,7 +114,10 @@ def GetParticipantLabels(request):
             team_string = ''
 
             for team in participant['teams']:
-                team_string = team_string + '\n' + team['team_name'] + ' : ' + str(team['team_id'])
+                if team['team_name'].__len__() > 29:
+                    team_string = team_string + '\n' + team['team_name'][:29] + '\n' + team['team_name'][29:] + ' : ' + str(team['team_id'])
+                else:
+                    team_string = team_string + '\n' + team['team_name'] + ' : ' + str(team['team_id'])
                 for event_team in PreRegistration.objects.filter(teams__id=team['team_id']):
                     team_string = team_string + '\n' + event_team.event.name
                 team_string =  team_string + '\n*******************'
