@@ -28,7 +28,7 @@ def reg_usr(request):
             message = message + 'Your temporary is '+password + '\n'    
             message = message + 'You may now login at http://expo.zapto.org/admin/'+'\n'
             message = message + 'Please remember to change your password(top right corner when logged in)'      
-            send_mail('EXPO Scoring System User Info', message, 'scoring-system@outlook.com',(new_user.email,), fail_silently=False)
+            send_mail('EXPO Scoring System User Info', message, 'score-system@outlook.com',(new_user.email,), fail_silently=False)
             new_user.save()
             return HttpResponseRedirect('/register/thanks/') # Redirect after POST
     else:
