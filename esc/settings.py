@@ -5,7 +5,7 @@ TEMPLATE_DEBUG = DEBUG
 import os
 
 ADMINS = (
-     ('Howard Grimberg', 'hgrimberg@ku.edu'),
+     ('Howard Grimberg', ''),
 )
 
 MANAGERS = ADMINS
@@ -28,10 +28,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-            'NAME': 'expo_dev',  # Or path to database file if using sqlite3.
-            'USER': 'expo_dev',  # Not used with sqlite3.
-            'PASSWORD': 'b66f7X33v4v17w8XkYtA7s',  # Not used with sqlite3.
-            'HOST': '/var/run/mysqld/mysqld.sock',  # Set to empty string for localhost. Not used with sqlite3.
+            'NAME': '',  # Or path to database file if using sqlite3.
+            'USER': '',  # Not used with sqlite3.
+            'PASSWORD': '',  # Not used with sqlite3.
+            'HOST': '',  # Set to empty string for localhost. Not used with sqlite3.
             'PORT': '3306',  # Set to empty string for default. Not used with sqlite3.
         }
     }
@@ -96,7 +96,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '*lcmk=vcg4x99f(1(166gd6pjjd@x_!(jkd%!nc(=-kd(k+*lx'
+SECRET_KEY = ''
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -143,8 +143,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
-TWILIO_ACCOUNT_SID = 'AP5b55a1b40fbe65b6ffb093328e82df86'
-TWILIO_AUTH_TOKEN = '523d856203389a7695ce0f69445ef616'
+TWILIO_ACCOUNT_SID = ''
+TWILIO_AUTH_TOKEN = ''
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -201,11 +201,11 @@ TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-mail.outlook.com'
-DEFAULT_FROM_EMAIL='score-system@outlook.com'
-EMAIL_HOST_PASSWORD = 'x9R7hhwrLsaccd'
+EMAIL_HOST = ''
+DEFAULT_FROM_EMAIL=''
+EMAIL_HOST_PASSWORD = ''
 
-EMAIL_HOST_USER ='score-system@outlook.com'
+EMAIL_HOST_USER =''
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_SUBJECT_PREFIX = '[EXPO]'
